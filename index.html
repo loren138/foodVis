@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>Food Vis</title>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+<div id="header">
+    <!-- https://github.gatech.edu/lklingman3/info-vis/issues/4 -->
+    <h1 style="float:left;">Food Flow Mapper</h1>
+    <select id="stateSelect">
+        <option value="all">All</option>
+        <option value="GA" selected>GA - Georgia</option>
+    </select>
+    <select id="viewSelect">
+        <option value="weight">Shipment Weight</option>
+        <option value="value">Shipment Value</option>
+        <option value="number">Number of Shipments</option>
+        <option value="distance">Shipment Distance</option>
+    </select>
+    
+    <p>
+        Sort By: <b>Alphabet</b> Ranking
+        Filter By:
+            <select id="filterFood"><option value="all">All Food Types</option></select>
+            <select id="filterTrans"><option value="all">All Transportation Types</option></select>
+        Shade By:
+            <select id="shade"><option value="ie">Import and Export</option></select>
+    </p>
+    <div id="yearSelect">
+        <!-- This should have the bar graph, slider, and back/play/forward buttons -->
+        <!-- Font Awesome http://fontawesome.io/ might be good for the icons. -->
+    </div>
+</div>
+<div id="arcsAndDots">
+    <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
+    <svg></svg>
+</div>
+<div id="bottomRow">
+    <div id="map">
+        <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
+        <div id="mapSC" style="top: 200px; left:30px;">SC</div>
+    </div>
+    <div id="foodClassBar">
+        <!-- https://github.gatech.edu/lklingman3/info-vis/issues/2 -->
+        <!-- Complete using flot (http://www.flotcharts.org/flot/examples/stacking/index.html) or D3 -->
+    </div>
+    <div id="transportationBar">
+        <!-- https://github.gatech.edu/lklingman3/info-vis/issues/3 -->
+        <!-- Complete using flot (http://www.flotcharts.org/flot/examples/stacking/index.html) or D3 -->
+    </div>
+</div>
+</body>
+</html>

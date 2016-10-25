@@ -1,0 +1,15 @@
+#bottomRow, #header {
+    position: relative;
+}
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#map div {
+    color: white;
+    width: 25px;
+    height: 25px;
+    background-color: #0000CC;
+    position: absolute;
+}
