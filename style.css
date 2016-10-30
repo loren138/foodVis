@@ -13,3 +13,39 @@
     background-color: #0000CC;
     position: absolute;
 }
+
+.import {
+    fill: #305068;
+}
+.export {
+    fill: #9ecbea;
+}
+#arcGraph {
+     width:1280px;
+     height:540px;
+     border: 1px solid black;
+}
+#arcGraph g.state rect {
+    fill: #152740;
+    /*fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9*/
+}
+#arcGraph g.state text {
+    fill: #FFFFFF;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  text-align: center;
+}
+
+#arcGraph .axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+#arcGraph text {
+  font-size:14px;
+}

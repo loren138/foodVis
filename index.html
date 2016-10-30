@@ -1,7 +1,126 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta charset="utf-8"/>
 <title>Food Vis</title>
 <link rel="stylesheet" type="text/css" href="style.css"/>
+<script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
+<script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+var statesAlpha = {
+    "AL": 1,
+    "AK": 2,
+    "AZ": 3,
+    "AR": 4,
+    "CA": 5,
+    "CO": 6,
+    "CT": 7,
+    "DE": 8,
+    "DC": 9,
+    "FL": 10,
+    "GA": 11,
+    "HI": 12,
+    "ID": 13,
+    "IL": 14,
+    "IN": 15,
+    "IA": 16,
+    "KS": 17,
+    "KY": 18,
+    "LA": 19,
+    "ME": 20,
+    "MD": 21,
+    "MA": 22,
+    "MI": 23,
+    "MN": 24,
+    "MS": 25,
+    "MO": 26,
+    "MT": 27,
+    "NE": 28,
+    "NV": 29,
+    "NH": 30,
+    "NJ": 31,
+    "NM": 32,
+    "NY": 33,
+    "NC": 34,
+    "ND": 35,
+    "OH": 36,
+    "OK": 37,
+    "OR": 38,
+    "PA": 39,
+    "RI": 40,
+    "SC": 41,
+    "SD": 42,
+    "TN": 43,
+    "TX": 44,
+    "UT": 45,
+    "VT": 46,
+    "VA": 47,
+    "WA": 48,
+    "WV": 49,
+    "WI": 50,
+    "WY": 51
+};
+$(document).ready(function() {
+    var states = {};
+    var graph = $('#arcGraph');
+    // Deep Copy alphabetical into the current active and setup states
+    var count = 0;
+    // Setup states
+    Object.keys(statesAlpha).forEach(function(key) {
+        states[ key ] = statesAlpha[ key ];
+        graph.append(
+            $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key+'StateBox')
+                .addClass('state').attr('transform', 'translate('+(count*25+2)+',450)')
+                .append(
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "rect"))
+                        .attr('x', 0).attr('y', 0).attr('width',24).attr('height', 19)
+                )
+                .append(
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "text"))
+                        .attr('x', 12).attr('y', 14).text(key).attr('text-anchor', 'middle')
+                )
+        );
+        count++;
+    });
+    
+    // Add Some Dots :)
+    Object.keys(statesAlpha).forEach(function(key) {
+        states[ key ] = statesAlpha[ key ];
+        $('#'+key+'StateBox').append(
+            $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key+'DotsBox')
+                .addClass('dots').attr('transform', 'translate(0,28)')
+        );
+        var box = $('#'+key+'DotsBox');
+        var importDots = statesAlpha[ key ] + getRandomInt(-3,3);
+        if (importDots < 0) {
+            importDots = 0;
+        }
+        var exportDots = Math.abs(30-statesAlpha[ key ]) + getRandomInt(-3,3);
+        if (importDots + exportDots > 50) {
+            exportDots = 60 - importDots;
+        }
+        for (var i = 0; i < importDots; i++) {
+            addDot(box, i, 0, 'import');
+        }
+        for (var i = 0; i < exportDots; i++) {
+            addDot(box, i, importDots, 'export');
+        }
+        count++;
+    }); 
+});
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+function addDot(box, i, extra, className) {
+    box.append(
+        $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
+            .attr('cx', ((i + extra) % 5) * 4 + 4)
+            .attr('cy', Math.floor((i+extra)/5) * 4).attr('r', 1.5).addClass(className)
+    );
+}
+</script>
 </head>
 <body>
 <div id="header">
@@ -33,7 +152,8 @@
 </div>
 <div id="arcsAndDots">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
-    <svg></svg>
+    <svg id='arcGraph'>
+    </svg>
 </div>
 <div id="bottomRow">
     <div id="map">
