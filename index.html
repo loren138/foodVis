@@ -64,38 +64,42 @@ $(document).ready(function() {
     var states = {};
     var graph = $('#arcGraph');
     // Deep Copy alphabetical into the current active and setup states
-    var count = 0;
-    // Setup states
     Object.keys(statesAlpha).forEach(function(key) {
         states[ key ] = statesAlpha[ key ];
         graph.append(
             $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key+'StateBox')
-                .addClass('state').attr('transform', 'translate('+(count*25+2)+',450)')
+                .addClass('state').attr('transform', 'translate('+((states[ key ]-1)*25+2)+',417)')
                 .append(
                     $(document.createElementNS("http://www.w3.org/2000/svg", "rect"))
-                        .attr('x', 0).attr('y', 0).attr('width',24).attr('height', 19)
+                        .attr('x', 0).attr('y', 33).attr('width',24).attr('height', 19)
                 )
                 .append(
                     $(document.createElementNS("http://www.w3.org/2000/svg", "text"))
-                        .attr('x', 12).attr('y', 14).text(key).attr('text-anchor', 'middle')
+                        .attr('x', 12).attr('y', 47).text(key).attr('text-anchor', 'middle')
                 )
         );
-        count++;
     });
     
     // Add Some Dots :)
-    Object.keys(statesAlpha).forEach(function(key) {
-        states[ key ] = statesAlpha[ key ];
+    Object.keys(states).forEach(function(key) {
         $('#'+key+'StateBox').append(
             $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key+'DotsBox')
-                .addClass('dots').attr('transform', 'translate(0,28)')
+                .addClass('dots').attr('transform', 'translate(0,61)')
+        ).append(
+            // Add the Big Circle
+            $(document.createElementNS("http://www.w3.org/2000/svg", "circle")).attr('id', key+'ToSelf')
+                .attr('cx', 12)
+                .attr('cy', 8).attr('r', getRandomInt(1,8)).addClass('stateCircle')
         );
+            //if (key == 'AL') {
+            //    $('#'+key+'StateBox').addClass('state1');
+            //}
         var box = $('#'+key+'DotsBox');
-        var importDots = statesAlpha[ key ] + getRandomInt(-3,3);
+        var importDots = states[key] + getRandomInt(-3,3);
         if (importDots < 0) {
             importDots = 0;
         }
-        var exportDots = Math.abs(30-statesAlpha[ key ]) + getRandomInt(-3,3);
+        var exportDots = Math.abs(30-states[key]) + getRandomInt(-3,3);
         if (importDots + exportDots > 50) {
             exportDots = 60 - importDots;
         }
@@ -105,8 +109,18 @@ $(document).ready(function() {
         for (var i = 0; i < exportDots; i++) {
             addDot(box, i, importDots, 'export');
         }
-        count++;
-    }); 
+    });
+    
+    $('#backwards').click(function () {
+        // Reverse states
+        Object.keys(states).forEach(function(key) {
+            states[ key ] = (states[key] - 52)*-1;
+            $('#'+key+'StateBox').attr('transform', 'translate('+((states[key]-1)*25+2)+',417)');
+            //if (key == 'AL') {
+            //    $('#'+key+'StateBox').addClass('state2').removeClass('state1');
+            //}
+        });
+    });
 });
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -123,6 +137,7 @@ function addDot(box, i, extra, className) {
 </script>
 </head>
 <body>
+<button id="backwards">Backwards</button>
 <div id="header">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/4 -->
     <h1 style="float:left;">Food Flow Mapper</h1>
@@ -153,6 +168,20 @@ function addDot(box, i, extra, className) {
 <div id="arcsAndDots">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
     <svg id='arcGraph'>
+        <g class='gray-arc'>
+        <!--A rx ry x-axis-rotation large-arc-flag sweep-flag x y-->
+            <!-- must adjust the move by half of stroke width -->
+            <path d = "M 14 425 a 1.5 1 0 0 1 100 0" class="import-line" stroke-width="5"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 100 0" class="export-line" stroke-width="2"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 400 0" class="export-line" stroke-width="7"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 400 0" class="import-line" stroke-width="4"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 1000 0" class="import-line" stroke-width="5"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 1000 0" class="export-line" stroke-width="2"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 1250 0" class="import-line" stroke-width="8"/>
+            <path d = "M 14 425 a 1.5 1 0 0 1 1250 0" class="export-line" stroke-width="1"/>
+            <path d = "M 114 425 a 1.5 1 0 0 1 400 0" class="export-line" stroke-width="7"/>
+            <path d = "M 114 425 a 1.5 1 0 0 1 400 0" class="import-line" stroke-width="4"/>
+        </g>
     </svg>
 </div>
 <div id="bottomRow">

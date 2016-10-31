@@ -14,16 +14,45 @@
     position: absolute;
 }
 
+g.gray-arc path {
+    opacity: 0.3;
+    transition: opacity 1s;
+}
+g.gray-arc:hover path {
+    opacity: 1;
+}
+
 .import {
     fill: #305068;
 }
+.import-line {
+    fill: none;
+    stroke: #305068;
+}
 .export {
     fill: #9ecbea;
+}
+.export-line {
+    fill: none;
+    stroke: #9ecbea;
 }
 #arcGraph {
      width:1280px;
      height:540px;
      border: 1px solid black;
+}
+#arcGraph g.state {
+  transition: all 1s ease-in-out;
+}
+#arcGraph g.state1 {
+  transform: translate(5px, 425px);
+}
+#arcGraph g.state2 {
+  transform: translate(1000px, 425px);
+}
+
+#arcGraph g.state circle.stateCircle {
+    fill: #152740;
 }
 #arcGraph g.state rect {
     fill: #152740;
