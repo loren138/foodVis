@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Food Flow Mapper</title>
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Roboto+Condensed:400,700|Roboto:300,400" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="../js/vendor/selectize/selectize.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/styles.css"/>
+</head>
+<body>
+<div id="header" class="header">
+    <!-- https://github.gatech.edu/lklingman3/info-vis/issues/4 -->
+    <h1 class="logo">Food Flow Mapper</h1>
+    <div class="filter">
+        <select class="selectbox" id="stateSelect">
+            <option value="all">All State</option>
+        </select>
+        <select class="selectbox selectbox-mid" id="viewSelect">
+            <option value="weight">Shipment Weight</option>
+            <option value="value">Shipment Value</option>
+            <option value="number">Number of Shipments</option>
+            <option value="distance">Shipment Distance</option>
+        </select>
+        <span class="sort-by">
+            <label class="label">Sort by</label>
+            <select class="selectbox" id="sortSelect">
+                <option value="alphabet">Alphabet</option>
+                <option value="ranking">Ranking</option>
+            </select>
+        </span>
+        <span class="filter-by">
+            <label class="label">Filter by</label>
+            <select class="selectbox selectbox-mid" id="filterFood">
+                <option value="all">All Food Types</option>
+                <option value="fish">Animals and Fish</option>
+                <option value="cereal">Cereal Grains</option>
+                <option value="agriculture">Agricultural Products</option>
+                <option value="origin">Animal Feed, Eggs, Honey, and Other product of Animal Origin</option>
+                <option value="meat">Meat, Poultry, Fish, Seafood, and their preparations</option>
+                <option value="grain">Milled Grain Products and Preparations, and Bakery Products</option>
+                <option value="fat">Other Prepared Foodstuffs, and Fats and Oil</option>
+                <option value="alcohol">Alcoholic Beverages and Denatured Alcohol</option>
+                <option value="tobacco">Tobacco Products</option>
+                <option value="undefined">Other Undefined food</option>
+            </select>
+            <select class="selectbox selectbox-mid" id="filterTrans">
+                <option value="all">All Transportation</option>
+                <option value="truck">Truck</option>
+                <option value="rail">Rail</option>
+                <option value="water">Water</option>
+                <option value="air">Air</option>
+                <option value="parcel">Parcel, USPS, or courier</option>
+                <option value="undefined">Other Undefined Modes</option>
+            </select>
+        </span>
+        <span class="shade-by">
+            <label class="label">Shade by</label>
+            <select class="selectbox selectbox-mid" id="shade">
+                <option value="ie">Import and Export</option>
+                <option value="food">Food Types</option>
+                <option value="trans">Transportation Modes</option>
+            </select>
+        </span>
+    </div>
+
+    <div id="yearSelect">
+        <!-- This should have the bar graph, slider, and back/play/forward buttons -->
+        <!-- Font Awesome http://fontawesome.io/ might be good for the icons. -->
+    </div>
+</div>
+<script type="text/javascript" src="../js/vendor/d3.v3.min.js"></script>
+<script type="text/javascript" src="../js/vendor/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../js/vendor/selectize/selectize.js"></script>
+
+<script>
+    var selectList = {};
+    $.each($('.selectbox'), function(){
+        var $this = $(this);
+        selectList[$this.attr('id')] = $this.selectize({
+            create: true
+        });
+    });
+
+    $.getJSON('../data/codeToState.json', function(json){
+        var stateList = json;
+        $.each(stateList, function(index, item){
+            item.text = item.abbreviation + '-' + item.name;
+        });
+
+        selectList.stateSelect[0].selectize.addOption(stateList);
+    });
+</script>
+</body>
+</html>

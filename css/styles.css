@@ -1,0 +1,53 @@
+@import "reset.css";
+@import "map.css";
+
+/*============Global Style==============*/
+body{
+    font-family: 'Roboto', sans-serif;
+    color: #5f6872;
+    font-size: 12px;
+}
+
+.header{
+    width: 100%;
+    height: 56px;
+    background-color: #ffffff;
+    box-shadow: 0 0 3px 0 rgba(31, 56, 76, 0.2);
+}
+.header .logo{
+    width: 176px;
+    height: 56px;
+    line-height: 56px;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    font-stretch: condensed;
+    color: #152740;
+    padding-left: 20px;
+    margin-right: 35px;
+    float: left;
+}
+.header .filter{
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 12px 20px 12px 0;
+}
+.header .filter *{
+    vertical-align: middle;
+}
+.header .label{
+    margin-left: 17px;
+    padding-right: 5px;
+    font-weight: 300;
+}
+.header .selectbox{
+    display: inline-block;
+    width: 105px;
+}
+.header .selectbox-mid{
+    width: 135px;
+}
+.header .selectbox-long{
+    width: 180px;
+}
