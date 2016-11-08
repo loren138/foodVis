@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Food Vis</title>
-<link rel="stylesheet" type="text/css" href="css/map.css"/>
-<script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
-<script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
+    <meta charset="utf-8"/>
+    <title>Food Vis</title>
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Roboto+Condensed:400,700|Roboto:300,400" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="../js/vendor/selectize/selectize.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/styles.css"/>
+    <script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
+    <script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
 <script type="text/javascript">
 var statesAlpha = {
     "AL": 1,
@@ -61,6 +65,25 @@ var statesAlpha = {
     "WY": 51
 };
 $(document).ready(function() {
+    var selectList = {};
+    $.each($('.selectbox'), function(){
+        var $this = $(this);
+        selectList[$this.attr('id')] = $this.selectize({
+            create: true
+        });
+    });
+
+    $.getJSON('../data/codeToState.json', function(json){
+        var stateList = json;
+        $.each(stateList, function(index, item){
+            item.text = item.abbreviation + '-' + item.name;
+            item.value = item.abbreviation;
+        });
+        console.log(stateList);
+
+        selectList.stateSelect[0].selectize.addOption(stateList);
+    });
+
     var states = {};
     var graph = $('#arcGraph');
     // Deep Copy alphabetical into the current active and setup states
@@ -137,34 +160,62 @@ function addDot(box, i, extra, className) {
 </script>
 </head>
 <body>
-<button id="backwards">Backwards</button>
-<div id="header">
+<div id="header" class="header">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/4 -->
-    <h1 style="float:left;">Food Flow Mapper</h1>
-    <select id="stateSelect">
-        <option value="all">All</option>
-        <option value="GA" selected>GA - Georgia</option>
-    </select>
-    <select id="viewSelect">
-        <option value="weight">Shipment Weight</option>
-        <option value="value">Shipment Value</option>
-        <option value="number">Number of Shipments</option>
-        <option value="distance">Shipment Distance</option>
-    </select>
-    
-    <p>
-        Sort By: <b>Alphabet</b> Ranking
-        Filter By:
-            <select id="filterFood"><option value="all">All Food Types</option></select>
-            <select id="filterTrans"><option value="all">All Transportation Types</option></select>
-        Shade By:
-            <select id="shade"><option value="ie">Import and Export</option></select>
-    </p>
-    <div id="yearSelect">
-        <!-- This should have the bar graph, slider, and back/play/forward buttons -->
-        <!-- Font Awesome http://fontawesome.io/ might be good for the icons. -->
+    <h1 class="logo">Food Flow Mapper</h1>
+    <div class="filter">
+        <select class="selectbox" id="stateSelect">
+            <option value="all">All State</option>
+        </select>
+        <select class="selectbox selectbox-mid" id="viewSelect">
+            <option value="weight">Shipment Weight</option>
+            <option value="value">Shipment Value</option>
+            <option value="number">Number of Shipments</option>
+            <option value="distance">Shipment Distance</option>
+        </select>
+        <span class="sort-by">
+            <label class="label">Sort by</label>
+            <select class="selectbox" id="sortSelect">
+                <option value="alphabet">Alphabet</option>
+                <option value="ranking">Ranking</option>
+            </select>
+        </span>
+        <span class="filter-by">
+            <label class="label">Filter by</label>
+            <select class="selectbox selectbox-mid" id="filterFood">
+                <option value="all">All Food Types</option>
+                <option value="fish">Animals and Fish</option>
+                <option value="cereal">Cereal Grains</option>
+                <option value="agriculture">Agricultural Products</option>
+                <option value="origin">Animal Feed, Eggs, Honey, and Other product of Animal Origin</option>
+                <option value="meat">Meat, Poultry, Fish, Seafood, and their preparations</option>
+                <option value="grain">Milled Grain Products and Preparations, and Bakery Products</option>
+                <option value="fat">Other Prepared Foodstuffs, and Fats and Oil</option>
+                <option value="alcohol">Alcoholic Beverages and Denatured Alcohol</option>
+                <option value="tobacco">Tobacco Products</option>
+                <option value="undefined">Other Undefined food</option>
+            </select>
+            <select class="selectbox selectbox-mid" id="filterTrans">
+                <option value="all">All Transportation</option>
+                <option value="truck">Truck</option>
+                <option value="rail">Rail</option>
+                <option value="water">Water</option>
+                <option value="air">Air</option>
+                <option value="parcel">Parcel, USPS, or courier</option>
+                <option value="undefined">Other Undefined Modes</option>
+            </select>
+        </span>
+        <span class="shade-by">
+            <label class="label">Shade by</label>
+            <select class="selectbox selectbox-mid" id="shade">
+                <option value="ie">Import and Export</option>
+                <option value="food">Food Types</option>
+                <option value="trans">Transportation Modes</option>
+            </select>
+        </span>
     </div>
 </div>
+<button id="backwards">Backwards</button>
 <div id="arcsAndDots">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
     <svg id='arcGraph'>
@@ -187,7 +238,216 @@ function addDot(box, i, extra, className) {
 <div id="bottomRow">
     <div id="map">
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
-        <div id="mapSC" style="top: 200px; left:30px;">SC</div>
+        <h2 style="text-align:center;">Shipment Weight by State, 2012</h2>
+        <div id="mapKey" style="width:100%;text-align:center;padding: 10px;">key Goes here</div>
+        <div id="plotMap">
+            <svg height="240" width="360">
+                <g id="stateMapME" transform="translate(330,0)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ME</text>
+                </g>
+                <g id="stateMapAK" transform="translate(0,30)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AK</text>
+                </g>
+                <g id="stateMapVT" transform="translate(270,30)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">VT</text>
+                </g>
+                <g id="stateMapNH" transform="translate(300,30)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NH</text>
+                </g>
+                <g id="stateMapMA" transform="translate(330,30)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MA</text>
+                </g>
+                <g id="stateMapWA" transform="translate(30,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WA</text>
+                </g>
+                <g id="stateMapMT" transform="translate(60,60)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MT</text>
+                </g>
+                <g id="stateMapND" transform="translate(90,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ND</text>
+                </g>
+                <g id="stateMapSD" transform="translate(120,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">SD</text>
+                </g>
+                <g id="stateMapMN" transform="translate(150,60)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MN</text>
+                </g>
+                <g id="stateMapWI" transform="translate(180,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WI</text>
+                </g>
+                <g id="stateMapMI" transform="translate(210,60)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MI</text>
+                </g>
+                <g id="stateMapNY" transform="translate(270,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NY</text>
+                </g>
+                <g id="stateMapCT" transform="translate(300,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CT</text>
+                </g>
+                <g id="stateMapRI" transform="translate(330,60)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">RI</text>
+                </g>
+                <g id="stateMapOR" transform="translate(30,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OR</text>
+                </g>
+                <g id="stateMapID" transform="translate(60,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ID</text>
+                </g>
+                <g id="stateMapWY" transform="translate(90,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WY</text>
+                </g>
+                <g id="stateMapNE" transform="translate(120,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NE</text>
+                </g>
+                <g id="stateMapIA" transform="translate(150,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IA</text>
+                </g>
+                <g id="stateMapIL" transform="translate(180,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IL</text>
+                </g>
+                <g id="stateMapIN" transform="translate(210,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IN</text>
+                </g>
+                <g id="stateMapOH" transform="translate(240,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OH</text>
+                </g>
+                <g id="stateMapPA" transform="translate(270,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">PA</text>
+                </g>
+                <g id="stateMapNJ" transform="translate(300,90)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NJ</text>
+                </g>
+                <g id="stateMapCA" transform="translate(0,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CA</text>
+                </g>
+                <g id="stateMapNV" transform="translate(30,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NV</text>
+                </g>
+                <g id="stateMapUT" transform="translate(60,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">UT</text>
+                </g>
+                <g id="stateMapCO" transform="translate(90,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CO</text>
+                </g>
+                <g id="stateMapKS" transform="translate(120,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">KS</text>
+                </g>
+                <g id="stateMapMO" transform="translate(150,120)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MO</text>
+                </g>
+                <g id="stateMapKY" transform="translate(180,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">KY</text>
+                </g>
+                <g id="stateMapWV" transform="translate(210,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WV</text>
+                </g>
+                <g id="stateMapDC" transform="translate(240,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">DC</text>
+                </g>
+                <g id="stateMapMD" transform="translate(270,120)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MD</text>
+                </g>
+                <g id="stateMapDE" transform="translate(300,120)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">DE</text>
+                </g>
+                <g id="stateMapAZ" transform="translate(60,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AZ</text>
+                </g>
+                <g id="stateMapNM" transform="translate(90,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NM</text>
+                </g>
+                <g id="stateMapOK" transform="translate(120,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OK</text>
+                </g>
+                <g id="stateMapAR" transform="translate(150,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AR</text>
+                </g>
+                <g id="stateMapTN" transform="translate(180,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">TN</text>
+                </g>
+                <g id="stateMapVA" transform="translate(210,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">VA</text>
+                </g>
+                <g id="stateMapNC" transform="translate(240,150)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NC</text>
+                </g>
+                <g id="stateMapHI" transform="translate(0,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">HI</text>
+                </g>
+                <g id="stateMapTX" transform="translate(90,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">TX</text>
+                </g>
+                <g id="stateMapLA" transform="translate(120,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">LA</text>
+                </g>
+                <g id="stateMapMS" transform="translate(150,180)">
+                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MS</text>
+                </g>
+                <g id="stateMapAL" transform="translate(180,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AL</text>
+                </g>
+                <g id="stateMapGA" transform="translate(210,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">GA</text>
+                </g>
+                <g id="stateMapSC" transform="translate(240,180)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">SC</text>
+                </g>
+                <g id="stateMapFL" transform="translate(210,210)">
+                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">FL</text>
+                </g>
+            </svg>
+        </div>
     </div>
     <div id="foodClassBar">
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/2 -->

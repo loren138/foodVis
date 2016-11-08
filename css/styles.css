@@ -51,3 +51,104 @@ body{
 .header .selectbox-long{
     width: 180px;
 }
+
+#bottomRow, #header {
+    position: relative;
+}
+#bottomRow {
+    width: 1280px;
+    margin: 10px auto;
+    padding-bottom: 10px;
+    min-height: 325px;
+
+}
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+g.gray-arc path {
+    opacity: 0.3;
+    transition: opacity 1s;
+}
+g.gray-arc:hover path {
+    opacity: 1;
+}
+
+.import {
+    fill: #305068;
+}
+.import-line {
+    fill: none;
+    stroke: #305068;
+}
+.export {
+    fill: #9ecbea;
+}
+.export-line {
+    fill: none;
+    stroke: #9ecbea;
+}
+#arcGraph {
+    width:1280px;
+    height:540px;
+    border: 1px solid black;
+}
+#arcGraph g.state {
+    transition: all 1s ease-in-out;
+}
+#arcGraph g.state1 {
+    transform: translate(5px, 425px);
+}
+#arcGraph g.state2 {
+    transform: translate(1000px, 425px);
+}
+
+#arcGraph g.state circle.stateCircle {
+    fill: #152740;
+}
+#arcGraph g.state rect {
+    fill: #152740;
+    /*fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9*/
+}
+#arcGraph g.state text {
+    fill: #FFFFFF;
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    text-align: center;
+}
+
+#arcGraph .axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+#arcGraph text {
+    font-size:14px;
+}
+
+#arcsAndDots {
+    width: 100%;
+    text-align: center;
+}
+
+#map h2 {
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    fill: #152740;
+}
+#map text.stateID {
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 9px;
+    font-weight: bold;
+    fill: #ffffff;
+    dominant-baseline: middle;
+    text-anchor: middle;
+}

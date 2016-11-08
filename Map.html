@@ -2,29 +2,36 @@
 <html>
 <head>
 <!-- Load the d3 library. -->
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Roboto+Condensed:400,700|Roboto:300,400" rel="stylesheet">
 <style>
-body { font-family: "Open Sans"; }
-text.stateID { font-family: "Open Sans"; 
+body { font-family: "Roboto"; }
+text.stateID { font-family: "Roboto Condensed";
                font-size: 9px;
                font-weight: bold;
                fill: #ffffff; 
                dominant-baseline: middle; 
                text-anchor: middle;
                }
-text.title {   font-family: "Open Sans";
+text.title {   font-family: "Roboto";
                font-size: 20px;
                font-weight: bold;
                fill: #152740; 
-               }               
+               }
+#map h2 {
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    fill: #152740;
+}
 </style>
 </head>
 <body>
 
 <h3> Food Flow Mapper </h3>
-<div id="plot"></div>
-
+<div id="map"></div>
+<h2>Shipment Weight by State, 2012</h2>
+<div id="plotMap"></div>
 <script src="./js/vendor/stateGrids.js"> </script>
 
 </body>

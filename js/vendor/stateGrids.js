@@ -63,14 +63,14 @@ stateIDs.forEach(function(stateID) {
 
 var xScale, yScale, xDomain, yDomain;
 
-var height = 1280;
-var width = 1280;
+var height = 240;
+var width = 360;
 
-var svg = d3.select("#plot").append("svg")
+var svg = d3.select("#plotMap").append("svg")
 .attr("height", height)
 .attr("width", width);
 
-var mapStartPt = {X: 20, Y: 860}
+var mapStartPt = {X: 0, Y: 0}
 var stateWidth = 29;
 var gap = 1;
 var legendStartPt = {X: 107, Y: 832};
@@ -83,24 +83,27 @@ var legendHeight = 11;
 //    .range(["#9dc7e4","#82a9c7","#678aa6","#566f86","#304862", "#152740"]);
 
 // Draw the title of the map
-var titleStartPt = {X:20, Y: 760}
-var maptitle = svg.append("text")
-                .attr("x", titleStartPt.X)
-                .attr("y", titleStartPt.Y)
-                .attr("class", "title")
-                .text("Shipment Weight by State, 2012");
+//var titleStartPt = {X:0, Y: 0}
+//var maptitle = svg.append("text")
+//                .attr("x", titleStartPt.X)
+  //              .attr("y", titleStartPt.Y)
+    //            .attr("class", "title")
+      //          .text("Shipment Weight by State, 2012");
     
 // draw the states map
-var stateGroup = svg.append("g")
-                .attr("transform", function () { 
-                    return "translate(" + mapStartPt.X + "," + mapStartPt.Y + ")"; });
+var stateGroup = svg;
+    //.append("g")
+      //          .attr("transform", function () {
+        //            return "translate(" + mapStartPt.X + "," + mapStartPt.Y + ")"; });
 
 var stateXScale = d3.scale.linear().domain([0,11]).range([0, 11 * (stateWidth + gap)]);
 var stateYScale = d3.scale.linear().domain([0,7]).range([0, 7 * (stateWidth + gap)]);
 
 var stateGroups = stateGroup.selectAll("g").data(stateIDs)
-    .enter().append("g")
-    .attr("transform", function (stateID) { 
+    .enter().append("g").attr('id', function(stateID) {
+        return 'stateMap'+stateID;
+    })
+    .attr("transform", function (stateID) {
             return "translate(" + stateXScale(stateGrid[stateID].col) + "," 
             + stateYScale(stateGrid[stateID].row) + ")"; });
 

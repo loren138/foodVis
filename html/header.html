@@ -86,7 +86,9 @@
         var stateList = json;
         $.each(stateList, function(index, item){
             item.text = item.abbreviation + '-' + item.name;
+            item.value = item.abbreviation;
         });
+        console.log(stateList);
 
         selectList.stateSelect[0].selectize.addOption(stateList);
     });
