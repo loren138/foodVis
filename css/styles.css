@@ -55,22 +55,41 @@ body{
 #bottomRow, #header {
     position: relative;
 }
+.key {
+    width:100%;
+    text-align:center;
+    font-family: Roboto, sans-serif;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.2;
+    color: #A0A5AF;
+}
+svg rect.keyBox {
+    width: 11px;
+    height: 11px;
+}
 #bottomRow {
     width: 1280px;
-    margin: 10px auto;
-    padding-bottom: 10px;
+    margin: 20px auto 0;
     min-height: 325px;
-
 }
-#map {
-    position: absolute;
-    top: 0;
-    left: 0;
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -khtml-user-select: none; /* Konqueror */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
 }
 
 g.gray-arc path {
     opacity: 0.3;
     transition: opacity 1s;
+    fill: none;
+    stroke: rgb(198, 204, 211);
 }
 g.gray-arc:hover path {
     opacity: 1;
@@ -79,33 +98,27 @@ g.gray-arc:hover path {
 .import {
     fill: #305068;
 }
-.import-line {
+g.gray-arc:hover .import-line {
     fill: none;
     stroke: #305068;
 }
 .export {
     fill: #9ecbea;
 }
-.export-line {
+g.gray-arc:hover .export-line {
     fill: none;
     stroke: #9ecbea;
 }
 #arcGraph {
     width:1280px;
     height:540px;
-    border: 1px solid black;
+    border: 1px solid #ddd;
 }
 #arcGraph g.state {
     transition: all 1s ease-in-out;
 }
-#arcGraph g.state1 {
-    transform: translate(5px, 425px);
-}
-#arcGraph g.state2 {
-    transform: translate(1000px, 425px);
-}
 
-#arcGraph g.state circle.stateCircle {
+#arcGraph g.state circle.stateCircle, svg.sKey circle.stateCircle {
     fill: #152740;
 }
 #arcGraph g.state rect {
@@ -114,7 +127,7 @@ g.gray-arc:hover path {
 }
 #arcGraph g.state text {
     fill: #FFFFFF;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Noto Sans', sans-serif;
     font-size: 11px;
     font-weight: normal;
     font-style: normal;
@@ -138,17 +151,42 @@ g.gray-arc:hover path {
     text-align: center;
 }
 
-#map h2 {
+#map, #foodClassBar, #transportationBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+}
+#foodClassBar {
+    /*left: 426px;*/
+    left: 459px;
+}
+#transportationBar {
+    left: 888px;
+}
+
+#map h2, #foodClassBar h2, #transportationBar h2 {
     font-family: "Roboto", sans-serif;
     font-size: 20px;
     font-weight: bold;
-    fill: #152740;
+    color: #152740;
+    text-align: left;
+    padding-bottom: 5px;
 }
 #map text.stateID {
-    font-family: "Roboto Condensed", sans-serif;
-    font-size: 9px;
-    font-weight: bold;
+    font-family: "Noto Sans", serif;
+    font-size: 11px;
+    font-weight: 400;
     fill: #ffffff;
-    dominant-baseline: middle;
+    dominant-baseline: central;
     text-anchor: middle;
+}
+div.notes {
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    color: #5f6872;
+    opacity: 0.6;
 }
