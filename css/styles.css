@@ -66,6 +66,9 @@ body{
     line-height: 1.2;
     color: #A0A5AF;
 }
+.key.left {
+    text-align: left;
+}
 svg rect.keyBox {
     width: 11px;
     height: 11px;
@@ -112,7 +115,7 @@ g.gray-arc:hover .export-line {
 #arcGraph {
     width:1280px;
     height:540px;
-    border: 1px solid #ddd;
+    /*border: 1px solid #ddd;*/
 }
 #arcGraph g.state {
     transition: all 1s ease-in-out;
@@ -187,6 +190,13 @@ div.notes {
     font-weight: normal;
     font-style: normal;
     font-stretch: normal;
-    color: #5f6872;
-    opacity: 0.6;
+    color: #A0A5AF;
+    text-align:left;
 }
+.keyText { fill: #A0A5AF; }
+.mapColor1 { fill: #9dc7e4; }
+.mapColor2 { fill: #82a9c7; }
+.mapColor3 { fill: #678aa6; }
+.mapColor4 { fill: #566f86; }
+.mapColor5 { fill: #304862; }
+.mapColor6 { fill: #152740; }

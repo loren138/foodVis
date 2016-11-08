@@ -16,12 +16,14 @@
         var stateSum;
         var ready = 0;
         var stateFlow;
+        alasql("CREATE TABLE stateFlow (t string, s string, fo string, tr string, v number, w number, d number, n number)");
+
         $.getJSON('../data/2012/state_sum_all.json', function(json){
             stateSum = json;
             ready++;
         });
         $.getJSON('../data/2012/state_flow.json', function(json){
-            stateFlow = json;
+            alasql.tables.stateFlow.data = json;
             ready++;
         });
         //alasql("CREATE TABLE test (language INT, hello STRING)");
@@ -85,8 +87,8 @@ var statesAlpha = {
     "WY": 51
 };
 var stateSumNorm = { // What to divide by for states
-    // [ 'forDots', 'forSelfDots', 'forArcWidth']
-    'w': [8000000000, 15000000000, 500000000],
+    // [ 'forDots', 'forSelfDots', 'forArcWidth', 'forStateColor']
+    'w': [8000000000, 15000000000, 500000000, 15000000000],
     'v': [1000, 1000],
     'n': [1000, 1000]
 };
@@ -162,6 +164,14 @@ function setUp() {
         for (var i = 0; i < exportDots; i++) {
             addDot(box, i, importDots, 'export');
         }
+        var x = Math.round(stateSum[key]['i'+dotsIndex]/stateSumNorm[dotsIndex][3]);
+        if (x < 1) {
+            x = 1;
+        }
+        if (x > 6) {
+            x = 6;
+        }
+        $('#stateMap'+key+' rect').attr('class', 'mapColor'+x);
     });
 
     // Grab Arc data
@@ -169,7 +179,7 @@ function setUp() {
     //console.log(arcData);
     //var arcSelfData = alasql('SELECT s, t, SUM(w) AS w FROM ? WHERE s = t GROUP BY s, t',[stateFlow]);
     //console.log(arcSelfData);
-    var arcData = alasql('SELECT s, t, SUM(w) AS w FROM ? GROUP BY s, t',[stateFlow]);
+    var arcData = alasql('SELECT s, t, SUM(w) AS w FROM stateFlow GROUP BY s, t');
     console.log(arcData);
 
     // Draw Arcs
@@ -303,6 +313,7 @@ function addDot(box, i, extra, className) {
         </span>
     </div>
 </div>
+<div style="height:10px;">&nbsp;</div>
 <div id="arcsAndDots">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
     <svg id='arcGraph'>
@@ -322,228 +333,242 @@ function addDot(box, i, extra, className) {
         </g>
     </svg>
     <div class="key">
-        <svg width="250" height="15" class="sKey">
+        <svg width="230" height="15" class="sKey">
             <circle cx="3" cy="7" r="2.5" class="stateCircle"></circle>
             <circle cx="11" cy="7" r="4.5" class="stateCircle"></circle>
             <circle cx="23" cy="7" r="6.5" class="stateCircle"></circle>
-            <text x="35" y="11">Shipment Weight</text>
+            <text x="35" y="11" class="keyText">Shipment Weight</text>
             <rect x="120" y="2" width="11" height="11" class="keyBox import"></rect>
             <text x="138" y="11">Import</text>
 
             <rect x="180" y="2" width="11" height="11" class="keyBox export"></rect>
-            <text x="198" y="11">Export</text>
+            <text x="198" y="11" class="keyText">Export</text>
         </svg>
+    </div>
 </div>
 <div id="bottomRow">
     <div id="map">
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
         <h2>Shipment Weight by State, <span class="year">2012</span></h2>
-        <div class="notes">In Millions of Pounds</div>
-        <div id="mapKey" class="key" style="padding: 10px;">key Goes here</div>
+        <div class="notes">In Billions of Pounds</div>
+        <div id="mapKey" class="key" style="padding: 10px;">
+            <svg width="230" height="25">
+                <text class="keyText" x="0" y="23">0</text>
+                <text class="keyText" x="69" y="10">30</text>
+                <text class="keyText" x="129" y="10">60</text>
+                <text class="keyText" x="205" y="23">&gt; 90</text>
+                <rect width="31" height="11" x="17" y="14" class="mapColor1"></rect>
+                <rect width="31" height="11" x="47" y="14" class="mapColor2"></rect>
+                <rect width="31" height="11" x="77" y="14" class="mapColor3"></rect>
+                <rect width="31" height="11" x="107" y="14" class="mapColor4"></rect>
+                <rect width="31" height="11" x="137" y="14" class="mapColor5"></rect>
+                <rect width="30" height="11" x="167" y="14" class="mapColor6"></rect>
+            </svg>
+        </div>
         <div id="plotMap">
             <svg height="240" width="360">
                 <g id="stateMapME" transform="translate(330,0)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ME</text>
                 </g>
                 <g id="stateMapAK" transform="translate(0,30)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AK</text>
                 </g>
                 <g id="stateMapVT" transform="translate(270,30)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">VT</text>
                 </g>
                 <g id="stateMapNH" transform="translate(300,30)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NH</text>
                 </g>
                 <g id="stateMapMA" transform="translate(330,30)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MA</text>
                 </g>
                 <g id="stateMapWA" transform="translate(30,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WA</text>
                 </g>
                 <g id="stateMapMT" transform="translate(60,60)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MT</text>
                 </g>
                 <g id="stateMapND" transform="translate(90,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ND</text>
                 </g>
                 <g id="stateMapSD" transform="translate(120,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">SD</text>
                 </g>
                 <g id="stateMapMN" transform="translate(150,60)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MN</text>
                 </g>
                 <g id="stateMapWI" transform="translate(180,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WI</text>
                 </g>
                 <g id="stateMapMI" transform="translate(210,60)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MI</text>
                 </g>
                 <g id="stateMapNY" transform="translate(270,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NY</text>
                 </g>
                 <g id="stateMapCT" transform="translate(300,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CT</text>
                 </g>
                 <g id="stateMapRI" transform="translate(330,60)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">RI</text>
                 </g>
                 <g id="stateMapOR" transform="translate(30,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OR</text>
                 </g>
                 <g id="stateMapID" transform="translate(60,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ID</text>
                 </g>
                 <g id="stateMapWY" transform="translate(90,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WY</text>
                 </g>
                 <g id="stateMapNE" transform="translate(120,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NE</text>
                 </g>
                 <g id="stateMapIA" transform="translate(150,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IA</text>
                 </g>
                 <g id="stateMapIL" transform="translate(180,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IL</text>
                 </g>
                 <g id="stateMapIN" transform="translate(210,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">IN</text>
                 </g>
                 <g id="stateMapOH" transform="translate(240,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OH</text>
                 </g>
                 <g id="stateMapPA" transform="translate(270,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">PA</text>
                 </g>
                 <g id="stateMapNJ" transform="translate(300,90)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NJ</text>
                 </g>
                 <g id="stateMapCA" transform="translate(0,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CA</text>
                 </g>
                 <g id="stateMapNV" transform="translate(30,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NV</text>
                 </g>
                 <g id="stateMapUT" transform="translate(60,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">UT</text>
                 </g>
                 <g id="stateMapCO" transform="translate(90,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">CO</text>
                 </g>
                 <g id="stateMapKS" transform="translate(120,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">KS</text>
                 </g>
                 <g id="stateMapMO" transform="translate(150,120)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MO</text>
                 </g>
                 <g id="stateMapKY" transform="translate(180,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">KY</text>
                 </g>
                 <g id="stateMapWV" transform="translate(210,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">WV</text>
                 </g>
                 <g id="stateMapDC" transform="translate(240,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">DC</text>
                 </g>
                 <g id="stateMapMD" transform="translate(270,120)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MD</text>
                 </g>
                 <g id="stateMapDE" transform="translate(300,120)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">DE</text>
                 </g>
                 <g id="stateMapAZ" transform="translate(60,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AZ</text>
                 </g>
                 <g id="stateMapNM" transform="translate(90,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NM</text>
                 </g>
                 <g id="stateMapOK" transform="translate(120,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">OK</text>
                 </g>
                 <g id="stateMapAR" transform="translate(150,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AR</text>
                 </g>
                 <g id="stateMapTN" transform="translate(180,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">TN</text>
                 </g>
                 <g id="stateMapVA" transform="translate(210,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">VA</text>
                 </g>
                 <g id="stateMapNC" transform="translate(240,150)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">NC</text>
                 </g>
                 <g id="stateMapHI" transform="translate(0,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">HI</text>
                 </g>
                 <g id="stateMapTX" transform="translate(90,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">TX</text>
                 </g>
                 <g id="stateMapLA" transform="translate(120,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">LA</text>
                 </g>
                 <g id="stateMapMS" transform="translate(150,180)">
-                    <rect width="29" height="29" style="fill: rgb(21, 39, 64);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">MS</text>
                 </g>
                 <g id="stateMapAL" transform="translate(180,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">AL</text>
                 </g>
                 <g id="stateMapGA" transform="translate(210,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">GA</text>
                 </g>
                 <g id="stateMapSC" transform="translate(240,180)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">SC</text>
                 </g>
                 <g id="stateMapFL" transform="translate(210,210)">
-                    <rect width="29" height="29" style="fill: rgb(157, 199, 228);"></rect>
+                    <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">FL</text>
                 </g>
             </svg>
