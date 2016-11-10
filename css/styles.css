@@ -184,6 +184,9 @@ g.gray-arc:hover .export-line {
     dominant-baseline: central;
     text-anchor: middle;
 }
+#map rect {
+    fill: #eee;
+}
 div.notes {
     font-family: Roboto, sans-serif;
     font-size: 12px;
@@ -194,9 +197,9 @@ div.notes {
     text-align:left;
 }
 .keyText { fill: #A0A5AF; }
-.mapColor1 { fill: #9dc7e4; }
-.mapColor2 { fill: #82a9c7; }
-.mapColor3 { fill: #678aa6; }
-.mapColor4 { fill: #566f86; }
-.mapColor5 { fill: #304862; }
-.mapColor6 { fill: #152740; }
+#map rect.mapColor1 { fill: #9dc7e4; }
+#map rect.mapColor2 { fill: #82a9c7; }
+#map rect.mapColor3 { fill: #678aa6; }
+#map rect.mapColor4 { fill: #566f86; }
+#map rect.mapColor5 { fill: #304862; }
+#map rect.mapColor6 { fill: #152740; }
