@@ -109,7 +109,7 @@ function setUp() {
         });
     });
 
-    $.getJSON('../data/codeToState.json', function(json){
+    $.getJSON('./data/codeToState.json', function(json){
         var stateList = json;
         $.each(stateList, function(index, item){
             item.text = item.abbreviation + '-' + item.name;
