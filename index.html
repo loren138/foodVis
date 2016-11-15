@@ -14,24 +14,18 @@
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
     <script type="text/javascript">
         var stateSum;
-        var ready = 0;
+        var ready = 1;
         var stateFlow;
-        alasql("CREATE TABLE stateFlow (t string, s string, fo string, tr string, v number, w number, d number, n number)");
+        alasql("CREATE TABLE stateFlow (t string, s string, fo string, tr string, v number, w number, tm number)");
 
-        $.getJSON('./data/2012/state_sum_all.json', function(json){
+        /*$.getJSON('./data/2012/state_sum_all.json', function(json){
             stateSum = json;
             ready++;
-        });
+        });*/
         $.getJSON('./data/2012/state_flow.json', function(json){
             alasql.tables.stateFlow.data = json;
             ready++;
         });
-        //alasql("CREATE TABLE test (language INT, hello STRING)");
-        //alasql("INSERT INTO test VALUES (1,'Hello!')");
-        //alasql("INSERT INTO test VALUES (2,'Aloha!')");
-        //alasql("INSERT INTO test VALUES (3,'Bonjour!')");
-        //console.log( alasql("SELECT * FROM test WHERE language > 1") );
-        //var data = [{a:1,b:1,c:1},{a:1,b:2,c:1},{a:1,b:3,c:1}, {a:2,b:1,c:1}];
 
 var statesAlpha = {
     "AL": 1,
@@ -86,11 +80,12 @@ var statesAlpha = {
     "WI": 50,
     "WY": 51
 };
+var arcData, graph, states, dotsIndex;
 var stateSumNorm = { // What to divide by for states
-    // [ 'forDots', 'forSelfDots', 'forArcWidth', 'forStateColor']
-    'w': [8000000000, 15000000000, 500000000, 15000000000],
-    'v': [1000, 1000],
-    'n': [1000, 1000]
+    // [ 'forDots', 'forSelfDots', 'forArcWidth', 'forStateColor', 'forPopup']
+    'w': [8000, 1500, 500, 15000, 1000],
+    'v': [5000, 1500, 500, 5000, 1000],
+    'tm': [2000000000, 750000000, 500000000, 1500000000, 1000000000]
 };
 function waitForData() {
     if (ready != 2) {
@@ -99,6 +94,193 @@ function waitForData() {
         setUp();
     }
 }
+function drawArcs() {
+    // Draw Arcs
+    var arcG = graph.find('.gray-arc');
+    arcG.empty(); // Remove all children
+    //for (var i = 0; i < arcData.length; i++) {
+    for (var i = 0; i < arcData.length; i++) {
+        if (arcData[i]['s'] == arcData[i]['t']) {
+            // Draw Circle
+            // TODO: Normalize to area and change to total weight of all, when selected show this number as an outer ring
+            // TODO: and limit dot size more
+            //var size = Math.round(arcData[i][dotsIndex]/stateSumNorm[dotsIndex][1]*10)/10;
+        } else {
+            // Draw Arc
+            var size = Math.round(arcData[i]['w']/stateSumNorm[dotsIndex][2]*10)/10;
+            if (size < 1) {
+                size = 1;
+            } else if (size > 20) {
+                size = 20
+            }
+            var state1 = states[arcData[i]['t']]*25-25+14;
+            var state2 = states[arcData[i]['s']]*25-25+14;
+            var xmove = 0;
+            if (state1 < state2) {
+                xmove = state2-state1;
+            } else {
+                xmove = state1 - state2;
+                state1 = state2;
+            }
+            arcG.append(
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "path"))
+                    //.attr('id', arcData[i]['s']+'ToSelf')
+                            .attr('class', 'import-line import-'+arcData[i]['t']+' export-'+arcData[i]['s'])
+                            // rx ry x-axis-rotation large-arc-flag sweep-flag x y
+                            .attr('d', 'M '+state1+' 425 a 1.5 1 0 0 1 '+xmove+' 0')
+                            .attr('stroke-width', size)
+
+            );
+        }
+    }
+}
+
+function queryWhere() {
+    var f = $('#filterFood').val();
+    var t = $('#filterTrans').val();
+    var query = '';
+    if (t != 'all') {
+        query = 'WHERE tr IN (\''+t.split(',').join("','")+'\')'
+    }
+    if (f != 'all') {
+        if (query != '') {
+            query += ' AND ';
+        } else {
+            query = 'WHERE ';
+        }
+        query += 'fo = \''+f+'\''
+    }
+
+    return query;
+}
+var stateRankI;
+var stateRankE;
+function computeRanks() {
+    var stateRankIa = [];
+    var stateRankEa = [];
+    Object.keys(states).forEach(function (key) {
+        stateRankIa.push([stateSum[key]['i'], key]);
+        stateRankEa.push([stateSum[key]['e'], key]);
+    });
+    stateRankIa.sort(function (a, b) { return b[0]-a[0]; });
+    stateRankEa.sort(function (a, b) { return b[0]-a[0]; });
+    stateRankI = {};
+    stateRankE = {};
+    for (var i = 0; i < stateRankIa.length; i++) {
+        stateRankI[stateRankIa[i][1]] = i+1;
+    }
+    for (i = 0; i < stateRankEa.length; i++) {
+        stateRankE[stateRankEa[i][1]] = i+1;
+    }
+}
+
+function sortStates() {
+    // Reverse states
+    var val = $('#sortSelect').val();
+
+    if (val != 'alphabet') {
+        var stateRanka = [];
+        Object.keys(states).forEach(function (key) {
+            stateRanka.push([stateSum[key]['i'] + stateSum[key]['e'], key]);
+        });
+        stateRanka.sort(function (a, b) {
+            return b[0] - a[0];
+        });
+        var stateRank = {};
+        for (var i = 0; i < stateRanka.length; i++) {
+            stateRank[stateRanka[i][1]] = i+1;
+        }
+    }
+    Object.keys(states).forEach(function(key) {
+        if (val == 'alphabet') {
+            states[key] = statesAlpha[key];
+        } else {
+            states[key] = stateRank[key];
+        }
+        $('#'+key+'StateBox').attr('class', 'state state'+states[key]);
+        //.addClass('state'+states[key])
+        //.attr('transform', 'translate('+((states[key]-1)*25+2)+',417)');
+        //if (key == 'AL') {
+        //    $('#'+key+'StateBox').addClass('state2').removeClass('state1');
+        //}
+    });
+    drawArcs();
+}
+
+function stateSumCalc() {
+    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY s');
+    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY t');
+    stateSum = {};
+    Object.keys(statesAlpha).forEach(function(key) {
+        stateSum[key] = {'e': 0, 'i': 0}
+    });
+
+    for (var i = 0; i < data1.length; i++) {
+        stateSum[data1[i].s]['e'] = data1[i]['w']
+    }
+    for (i = 0; i < data2.length; i++) {
+        stateSum[data2[i].t]['i'] = data2[i]['w']
+    }
+}
+function drawDots() {
+    stateSumCalc();
+
+    Object.keys(states).forEach(function(key) {
+        var size = Math.round((stateSum[key]['i'] + stateSum[key]['e'])/stateSumNorm[dotsIndex][1])/10;
+        if (size < 3) {
+            size = 3;
+        }
+        if (size > 10) {
+            size = 10
+        }
+        var selfCircle = $('#'+key+'ToSelf');
+        if (selfCircle.length) {
+            selfCircle.attr('r', size);
+        } else {
+            $('#' + key + 'StateBox').append(
+                    // Add the Big Circle
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "circle")).attr('id', key + 'ToSelf')
+                            .attr('cx', 12).data('state', key)
+                            .attr('cy', 8).attr('r', size).addClass('stateCircle')
+            );
+        }
+
+        var box = $('#'+key+'DotsBox');
+
+        if (box.length) {
+            box.empty();
+        } else {
+            $('#' + key + 'StateBox').append(
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key + 'DotsBox')
+                            .addClass('dots').attr('transform', 'translate(0,61)')
+            );
+            box = $('#'+key+'DotsBox');
+        }
+        var importDots = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][0]);
+        if (importDots < 0) {
+            importDots = 0;
+        }
+        var exportDots = Math.round(stateSum[key]['e']/stateSumNorm[dotsIndex][0]);
+        //if (importDots + exportDots > 50) {
+        //    exportDots = 60 - importDots;
+        //}
+        for (var i = 0; i < importDots; i++) {
+            addDot(box, i, 0, 'import');
+        }
+        for (var i = 0; i < exportDots; i++) {
+            addDot(box, i, importDots, 'export');
+        }
+        var x = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][3]);
+        if (x < 1) {
+            x = 1;
+        }
+        if (x > 6) {
+            x = 6;
+        }
+        $('#stateMap'+key+' rect').attr('class', 'mapColor'+x);
+    });
+}
+var stateAbbr = {};
 $(document).ready(waitForData);
 function setUp() {
     var selectList = {};
@@ -114,13 +296,14 @@ function setUp() {
         $.each(stateList, function(index, item){
             item.text = item.abbreviation + '-' + item.name;
             item.value = item.abbreviation;
+            stateAbbr[item.abbreviation] = item.name;
         });
 
         selectList.stateSelect[0].selectize.addOption(stateList);
     });
 
-    var states = {};
-    var graph = $('#arcGraph');
+    states = {};
+    graph = $('#arcGraph');
     // Deep Copy alphabetical into the current active and setup states
     Object.keys(statesAlpha).forEach(function(key) {
         states[ key ] = statesAlpha[ key ];
@@ -129,125 +312,68 @@ function setUp() {
                     .attr('class', 'state state'+states[key])
                     //.attr('transform', 'translate('+((states[ key ]-1)*25+2)+',417)')
                 .append(
-                    $(document.createElementNS("http://www.w3.org/2000/svg", "rect"))
-                        .attr('x', 0).attr('y', 33).attr('width',24).attr('height', 19)
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "rect")).attr('class', 'stateRect')
+                        .attr('x', 0).attr('y', 33).attr('width',24).attr('height', 19).data('state', key)
                 )
                 .append(
-                    $(document.createElementNS("http://www.w3.org/2000/svg", "text"))
-                        .attr('x', 12).attr('y', 47).text(key).attr('text-anchor', 'middle')
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "text")).attr('class', 'stateText')
+                        .attr('x', 12).attr('y', 47).text(key).attr('text-anchor', 'middle').data('state', key)
                 )
         );
     });
-    
-    // Add Some Dots :)
-    var dotsIndex = 'w';
-    Object.keys(states).forEach(function(key) {
-        $('#'+key+'StateBox').append(
-            $(document.createElementNS("http://www.w3.org/2000/svg", "g")).attr('id', key+'DotsBox')
-                .addClass('dots').attr('transform', 'translate(0,61)')
-        );
-            //if (key == 'AL') {
-            //    $('#'+key+'StateBox').addClass('state1');
-            //}
-        var box = $('#'+key+'DotsBox');
-        var importDots = Math.round(stateSum[key]['i'+dotsIndex]/stateSumNorm[dotsIndex][0]);
-        if (importDots < 0) {
-            importDots = 0;
-        }
-        var exportDots = Math.round(stateSum[key]['e'+dotsIndex]/stateSumNorm[dotsIndex][0]);
-        //if (importDots + exportDots > 50) {
-        //    exportDots = 60 - importDots;
-        //}
-        for (var i = 0; i < importDots; i++) {
-            addDot(box, i, 0, 'import');
-        }
-        for (var i = 0; i < exportDots; i++) {
-            addDot(box, i, importDots, 'export');
-        }
-        var x = Math.round(stateSum[key]['i'+dotsIndex]/stateSumNorm[dotsIndex][3]);
-        if (x < 1) {
-            x = 1;
-        }
-        if (x > 6) {
-            x = 6;
-        }
-        $('#stateMap'+key+' rect').attr('class', 'mapColor'+x);
-    });
+    dotsIndex = $('#viewSelect').val();
+    redraw();
 
-    // Grab Arc data
-    //var arcData = alasql('SELECT s, t, SUM(w) AS w FROM ? WHERE s <> t GROUP BY s, t',[stateFlow]);
-    //console.log(arcData);
-    //var arcSelfData = alasql('SELECT s, t, SUM(w) AS w FROM ? WHERE s = t GROUP BY s, t',[stateFlow]);
-    //console.log(arcSelfData);
-    var arcData = alasql('SELECT s, t, SUM(w) AS w FROM stateFlow GROUP BY s, t');
-    console.log(arcData);
-
-    // Draw Arcs
-    var arcG = graph.find('.gray-arc');
-    //for (var i = 0; i < arcData.length; i++) {
-    for (var i = 0; i < arcData.length; i++) {
-        if (arcData[i]['s'] == arcData[i]['t']) {
-            // Draw Circle
-// TODO: Normalize to area
-            var size = Math.round(arcData[i][dotsIndex]/stateSumNorm[dotsIndex][1]*10)/10;
-            if (size < 3) {
-                size = 3;
-            }
-            $('#'+arcData[i]['s']+'StateBox').append(
-                    // Add the Big Circle
-                    $(document.createElementNS("http://www.w3.org/2000/svg", "circle")).attr('id', arcData[i]['s']+'ToSelf')
-                            .attr('cx', 12)
-                            .attr('cy', 8).attr('r', size).addClass('stateCircle')
-            );
-        } else {
-            // Draw Arc
-            var size = Math.round(arcData[i][dotsIndex]/stateSumNorm[dotsIndex][2]*10)/10;
-            if (size < 1) {
-                size = 1;
-            }
-            var state1 = states[arcData[i]['t']]*25-25+14;
-            var state2 = states[arcData[i]['s']]*25-25+14;
-            var xmove = 0;
-            if (state1 < state2) {
-                xmove = state2-state1;
-            } else {
-                xmove = state1 - state2;
-                state1 = state2;
-            }
-            arcG.append(
-                    $(document.createElementNS("http://www.w3.org/2000/svg", "path"))
-                            //.attr('id', arcData[i]['s']+'ToSelf')
-                            .attr('class', 'import-line import-'+arcData[i]['t']+' export-'+arcData[i]['s'])
-                            // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-                            .attr('d', 'M '+state1+' 425 a 1.5 1 0 0 1 '+xmove+' 0')
-                            .attr('stroke-width', size)
-
-            );
-        }
-    }
-    
-    $('#sortSelect').change(function () {
-        // Reverse states
-        var val = $('#sortSelect').val();
-        Object.keys(states).forEach(function(key) {
-            if (val == 'alphabet') {
-                states[key] = statesAlpha[key];
-            } else {
-                states[key] = (statesAlpha[key] - 52) * -1;
-            }
-            $('#'+key+'StateBox').attr('class', 'state state'+states[key]);
-                    //.addClass('state'+states[key])
-                    //.attr('transform', 'translate('+((states[key]-1)*25+2)+',417)');
-            //if (key == 'AL') {
-            //    $('#'+key+'StateBox').addClass('state2').removeClass('state1');
-            //}
-        });
-    });
+    $('#filterFood, #filterTrans').change(redraw);
+    $('#viewSelect').change(viewChange);
+    $('#sortSelect').change(sortStates);
 }
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
+function viewChange() {
+    dotsIndex = $('#viewSelect').val();
+    var optText = $("#viewSelect option:selected").text();
+    $('.viewSelectText').text(optText);
+    if (dotsIndex == 'w') {
+        $('.keyUnits').text('In Billions of Pounds');
+        $('#mapKey1').text('30');
+        $('#mapKey2').text('60');
+        $('#mapKey3').text('> 90');
+    } else if (dotsIndex == 'v') {
+        $('.keyUnits').text('In Billions of Dollars');
+        $('#mapKey1').text('10');
+        $('#mapKey2').text('20');
+        $('#mapKey3').text('> 30');
+    } else {
+        $('.keyUnits').text('In Billions of Ton Miles');
+        $('#mapKey1').text('3');
+        $('#mapKey2').text('6');
+        $('#mapKey3').text('> 9');
+    }
+    redraw();
+}
+function redraw() {
+    arcData = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY s, t');
+    drawDots();
+    sortStates();
+    drawArcs();
+    computeRanks();
+    $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut);
+}
+function stateHoverIn() {
+    var item = $('#hoverState');
+    var state = $(this).data('state');
+    item.css('left', states[state]*25-25-50);
+    $('#hoverImport').text((stateSum[state]['i'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
+    $('#hoverExport').text((stateSum[state]['e'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
+    $('#hoverImportRank').text(stateRankI[state]);
+    $('#hoverExportRank').text(stateRankE[state]);
+    $('#hoverStateName').text(stateAbbr[state]);
+    //$('#hoverStateName').text(state+' - '+ stateAbbr[state]);
+    //item.stop().fadeIn(200);
+    item.show();
+}
+function stateHoverOut() {
+    //$('#hoverState').stop().show(200);
+    $('#hoverState').hide();
 }
 function addDot(box, i, extra, className) {
     box.append(
@@ -262,85 +388,93 @@ function addDot(box, i, extra, className) {
 <div id="header" class="header noselect">
     <!-- https://github.gatech.edu/lklingman3/info-vis/issues/4 -->
     <h1 class="logo">Food Flow Mapper</h1>
+    <form autocomplete="off">
     <div class="filter">
         <select class="selectbox" id="stateSelect">
-            <option value="all">All State</option>
+            <option value="all" selected>All States</option>
         </select>
         <select class="selectbox selectbox-mid" id="viewSelect">
-            <option value="weight">Shipment Weight</option>
-            <option value="value">Shipment Value</option>
-            <option value="number">Number of Shipments</option>
-            <option value="distance">Shipment Distance</option>
+            <option value="w" selected>Shipment Weight</option>
+            <option value="v">Shipment Value</option>
+            <option value="tm">Ton Miles</option>
         </select>
         <span class="sort-by">
             <label class="label">Sort by</label>
             <select class="selectbox" id="sortSelect">
-                <option value="alphabet">Alphabet</option>
+                <option value="alphabet" selected>Alphabet</option>
                 <option value="ranking">Ranking</option>
             </select>
         </span>
         <span class="filter-by">
             <label class="label">Filter by</label>
             <select class="selectbox selectbox-mid" id="filterFood">
-                <option value="all">All Food Types</option>
-                <option value="fish">Animals and Fish</option>
-                <option value="cereal">Cereal Grains</option>
-                <option value="agriculture">Agricultural Products</option>
-                <option value="origin">Animal Feed, Eggs, Honey, and Other product of Animal Origin</option>
-                <option value="meat">Meat, Poultry, Fish, Seafood, and their preparations</option>
-                <option value="grain">Milled Grain Products and Preparations, and Bakery Products</option>
-                <option value="fat">Other Prepared Foodstuffs, and Fats and Oil</option>
-                <option value="alcohol">Alcoholic Beverages and Denatured Alcohol</option>
-                <option value="tobacco">Tobacco Products</option>
-                <option value="undefined">Other Undefined food</option>
+                <option value="all" selected>All Food Types</option>
+                <option value="F01">Animals and Fish</option>
+                <option value="F02">Cereal Grains</option>
+                <option value="F03">Agricultural Products</option>
+                <option value="F04">Animal Feed, Eggs, Honey, and Other product of Animal Origin</option>
+                <option value="F05">Meat, Poultry, Fish, Seafood, and their preparations</option>
+                <option value="F06">Milled Grain Products and Preparations, and Bakery Products</option>
+                <option value="F07">Other Prepared Foodstuffs, and Fats and Oil</option>
+                <option value="F08">Alcoholic Beverages and Denatured Alcohol</option>
+                <option value="F09">Tobacco Products</option>
+                <option value="F00">Other Undefined food</option>
             </select>
             <select class="selectbox selectbox-mid" id="filterTrans">
-                <option value="all">All Transportation</option>
-                <option value="truck">Truck</option>
-                <option value="rail">Rail</option>
-                <option value="water">Water</option>
-                <option value="air">Air</option>
-                <option value="parcel">Parcel, USPS, or courier</option>
-                <option value="undefined">Other Undefined Modes</option>
+                <option value="all" selected>All Transportation</option>
+                <option value="T03,T04,T05">Truck</option>
+                <option value="T06">Rail</option>
+                <option value="T07,T08,T09,T10,T101">Water</option>
+                <option value="T11">Air</option>
+                <option value="T14">Parcel, USPS, or courier</option>
+                <option value="T00">Other Undefined Modes</option>
             </select>
         </span>
         <span class="shade-by">
             <label class="label">Shade by</label>
             <select class="selectbox selectbox-mid" id="shade">
-                <option value="ie">Import and Export</option>
+                <option value="ie" selected>Import and Export</option>
                 <option value="food">Food Types</option>
                 <option value="trans">Transportation Modes</option>
             </select>
         </span>
     </div>
+    </form>
 </div>
 <div style="height:10px;">&nbsp;</div>
 <div id="arcsAndDots">
-    <!-- https://github.gatech.edu/lklingman3/info-vis/issues/5 -->
+    <div id="hoverState" style="top:285px;left:10px;display:none;" class="hoverState">
+        <span id="hoverStateName">GA - Georgia</span><br>
+        <span class="greyText keyUnits">In Billions of Pounds</span>
+        <table style="border:none;width:100%;">
+            <tr><td>
+                <span class="greyText">Import</span><br>
+                <span id="hoverImport">540</span>
+            </td><td style="text-align: right;">
+                <span class="greyText">Rank</span><br>
+                <span class="orange" id="hoverImportRank">12</span>/51
+            </td></tr>
+            <tr><td>
+                <span class="greyText">Export</span><br>
+                <span id="hoverExport">1120</span>
+            </td><td style="text-align: right;">
+                <span class="greyText">Rank</span><br>
+                <span class="orange" id="hoverExportRank">23</span>/51
+            </td></tr>
+        </table>
+    </div>
     <svg id='arcGraph'>
-        <g class='gray-arc'>
-        <!--A rx ry x-axis-rotation large-arc-flag sweep-flag x y-->
-            <!-- must adjust the move by half of stroke width
-            <path d = "M 14 425 a 1.5 1 0 0 1 100 0" class="import-line" stroke-width="5"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 100 0" class="export-line" stroke-width="2"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 400 0" class="export-line" stroke-width="7"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 400 0" class="import-line" stroke-width="4"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 1000 0" class="import-line" stroke-width="5"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 1000 0" class="export-line" stroke-width="2"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 1250 0" class="import-line" stroke-width="8"/>
-            <path d = "M 14 425 a 1.5 1 0 0 1 1250 0" class="export-line" stroke-width="1"/>
-            <path d = "M 114 425 a 1.5 1 0 0 1 400 0" class="export-line" stroke-width="7"/>
-            <path d = "M 114 425 a 1.5 1 0 0 1 400 0" class="import-line" stroke-width="4"/>-->
-        </g>
+        <g class='gray-arc'></g>
+        <g class='gray-arc' id="selectedArc"></g>
     </svg>
     <div class="key">
         <svg width="230" height="15" class="sKey">
             <circle cx="3" cy="7" r="2.5" class="stateCircle"></circle>
             <circle cx="11" cy="7" r="4.5" class="stateCircle"></circle>
             <circle cx="23" cy="7" r="6.5" class="stateCircle"></circle>
-            <text x="35" y="11" class="keyText">Shipment Weight</text>
+            <text x="35" y="11" class="keyText viewSelectText">Shipment Weight</text>
             <rect x="120" y="2" width="11" height="11" class="keyBox import"></rect>
-            <text x="138" y="11">Import</text>
+            <text x="138" y="11" class="keyText">Import</text>
 
             <rect x="180" y="2" width="11" height="11" class="keyBox export"></rect>
             <text x="198" y="11" class="keyText">Export</text>
@@ -350,14 +484,14 @@ function addDot(box, i, extra, className) {
 <div id="bottomRow">
     <div id="map">
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
-        <h2>Shipment Weight by State, <span class="year">2012</span></h2>
-        <div class="notes">In Billions of Pounds</div>
+        <h2><span class="viewSelectText">Shipment Weight</span> by State, <span class="year">2012</span></h2>
+        <div class="notes keyUnits">In Billions of Pounds</div>
         <div id="mapKey" class="key" style="padding: 10px;">
             <svg width="230" height="25">
                 <text class="keyText" x="0" y="23">0</text>
-                <text class="keyText" x="69" y="10">30</text>
-                <text class="keyText" x="129" y="10">60</text>
-                <text class="keyText" x="205" y="23">&gt; 90</text>
+                <text class="keyText" id="mapKey1" x="69" y="10">30</text>
+                <text class="keyText" id="mapKey2" x="129" y="10">60</text>
+                <text class="keyText" id="mapKey3" x="205" y="23">&gt; 90</text>
                 <rect width="31" height="11" x="17" y="14" class="mapColor1"></rect>
                 <rect width="31" height="11" x="47" y="14" class="mapColor2"></rect>
                 <rect width="31" height="11" x="77" y="14" class="mapColor3"></rect>
