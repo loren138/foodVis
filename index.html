@@ -13,6 +13,11 @@
     <script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
     <script type="text/javascript">
+        // TODO: Cursor to pointer over state circle/rect
+        // TODO: Circle/rectangle red border (or reduced opacity) on hover
+        // TODO: Fix selected state lines on change filter
+        // TODO: Select state turn red in map
+        // TODO: Update map to show import/export for just that state?
         var stateSum;
         var ready = 1;
         var stateFlow;
@@ -185,7 +190,7 @@ function sortStates() {
             stateRanka.push([stateSum[key]['i'] + stateSum[key]['e'], key]);
         });
         stateRanka.sort(function (a, b) {
-            return b[0] - a[0];
+            return a[0] - b[0];
         });
         var stateRank = {};
         for (var i = 0; i < stateRanka.length; i++) {
@@ -437,7 +442,52 @@ function selectState(state) {
     arcG.find('path').addClass('color');
     var div = $('#selectedState');
     div.find('.name').text(stateAbbr[state]);
+    var table = div.find('table tbody');
+    table.empty();
+    table.append(buildStateRow(state, state, [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildSectionRow());
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildSectionRow());
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
     div.show();
+}
+function buildSectionRow() {
+    return $("<tr>").append(
+            $("<td>").attr('colspan', 6).append(
+                    $("<div>").attr('class', 'section')
+            )
+    )
+}
+function buildStateRow(state1, state2, numbers) {
+    var row = $("<tr>").append(
+            $("<td>").attr('class', 'state').html(state1+"&rarr;"+state2)
+    );
+    for (var i = 0; i < numbers.length; i++) {
+        var classes = 'number';
+        if (i % 5 != 4) {
+            classes = 'number smallW';
+        }
+        row.append(
+            $("<td>").attr('class', classes).append(
+                    $("<span>").attr('class', numbers[i][1]).html('&bull;')
+            ).append(" "+numbers[i][0])
+        );
+    }
+    for (i = numbers.length % 5; i < 5; i++) {
+        classes = 'number';
+        if (i % 5 != 4) {
+            classes = 'number smallW';
+        }
+        row.append(
+                $("<td>").attr('class', classes).html('&nbsp;')
+        );
+    }
+    return row;
 }
 function stateHoverIn() {
     if (selectedState) {
@@ -531,7 +581,7 @@ function addDot(box, i, extra, className) {
         <span class="name">Georgia</span><br>
         <span class="key keyUnits">In Billions of Pounds</span>
         <img src="x.png" style="position: absolute; top: 10px;right:10px;" alt="Close" id="closeState">
-        <table>
+        <table><tbody>
             <tr>
                 <td class="state">GA&rarr;GA</td>
                 <td class="number smallW"><span class="importDot">&bull;</span> 234</td>
@@ -574,7 +624,7 @@ function addDot(box, i, extra, className) {
                 <td class="number"><span class="importDot">&bull;</span> 234</td>
                 <td class="number"><span class="exportDot">&bull;</span> 544</td>
             </tr>
-        </table>
+        </tbody></table>
     </div>
     <div id="hoverState" style="top:285px;left:10px;display:none;" class="hoverState">
         <span id="hoverStateName">Georgia</span><br>
