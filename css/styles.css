@@ -87,6 +87,53 @@ svg rect.keyBox {
     user-select: none; /* Non-prefixed version, currently
                                   not supported by any browser */
 }
+#selectedState {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 236px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(31, 56, 76, 0.2);
+    text-align: left;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #152740;
+    padding: 15px;
+}
+#selectedState .name {
+    font-size: 14px;
+}
+#selectedState table {
+    border:none;
+    width: 100%;
+    margin-top: 10px;
+}
+#selectedState td {
+    padding: 4px 0;
+}
+#selectedState td.state {
+    width: 62px;
+}
+#selectedState td.smallW {
+    width: 32px;
+}
+#selectedState .section {
+    margin: 3px 0;
+    width: 100%;
+    border-bottom: solid 2px #e1e4e7;
+}
+#selectedState .key {
+    font-size: 10px;
+    font-weight: normal;
+    color: #5f6872;
+    line-height: 1.8em;
+}
+#selectedState .number {
+    font-weight: normal;
+    color: #5f6872;
+}
 .hoverState td {
     padding-top: 5px;
 }
@@ -128,6 +175,7 @@ svg rect.keyBox {
 g.gray-arc path {
     opacity: 0.3;
     transition: opacity 1s;
+    transition: fill 1s;
     fill: none;
     stroke: rgb(198, 204, 211);
 }
@@ -138,12 +186,20 @@ g.gray-arc path.color {
 .import {
     fill: #305068;
 }
+.importDot {
+    font-weight: bold;
+    color: #305068;
+}
 g.gray-arc .import-line.color {
     fill: none;
     stroke: #305068;
 }
 .export {
     fill: #9ecbea;
+}
+.exportDot {
+    font-weight: bold;
+    color: #9ecbea;
 }
 g.gray-arc .export-line.color {
     fill: none;
@@ -164,6 +220,12 @@ g.gray-arc .export-line.color {
 #arcGraph g.state rect {
     fill: #152740;
     /*fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9*/
+}
+#arcGraph g.state.selected rect {
+    fill: #ed5950;
+}
+#arcGraph g.state.selected circle.stateCircle {
+    fill: #ed5950;
 }
 #arcGraph g.state text {
     fill: #FFFFFF;
