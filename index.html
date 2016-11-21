@@ -18,17 +18,36 @@
         // TODO: Fix selected state lines on change filter
         // TODO: Select state turn red in map
         // TODO: Update map to show import/export for just that state?
+        // TODO: 4 circles per line for import/export dots and shrink graph
+        // TODO: Map update opacity for connected states on state select
+        // TODO: State edge opacity to 0.8 on select
+        // TODO: State dot hover to #5B6779 or red border
         var stateSum;
-        var ready = 1;
-        var stateFlow;
-        alasql("CREATE TABLE stateFlow (t string, s string, fo string, tr string, v number, w number, tm number)");
+        var ready = 0;
+        var stateFlow2012;
+        alasql("CREATE TABLE stateFlow2012 (t string, s string, fo string, tr string, v number, w number, tm number)");
+        alasql("CREATE TABLE stateFlow2007 (t string, s string, fo string, tr string, v number, w number, tm number)");
+        alasql("CREATE TABLE stateFlow2002 (t string, s string, fo string, tr string, v number, w number, tm number)");
+        alasql("CREATE TABLE stateFlow1997 (t string, s string, fo string, tr string, v number, w number, tm number)");
 
         /*$.getJSON('./data/2012/state_sum_all.json', function(json){
             stateSum = json;
             ready++;
         });*/
         $.getJSON('./data/2012/state_flow.json', function(json){
-            alasql.tables.stateFlow.data = json;
+            alasql.tables.stateFlow2012.data = json;
+            ready++;
+        });
+        $.getJSON('./data/2007/state_flow.json', function(json){
+            alasql.tables.stateFlow2007.data = json;
+            ready++;
+        });
+        $.getJSON('./data/2002/state_flow.json', function(json){
+            alasql.tables.stateFlow2002.data = json;
+            ready++;
+        });
+        $.getJSON('./data/1997/state_flow.json', function(json){
+            alasql.tables.stateFlow1997.data = json;
             ready++;
         });
 
@@ -93,7 +112,7 @@ var stateSumNorm = { // What to divide by for states
     'tm': [2000000000, 750000000, 500000000, 1500000000, 1000000000]
 };
 function waitForData() {
-    if (ready != 2) {
+    if (ready != 4) {
         setTimeout(waitForData, 500);
     } else {
         setUp();
@@ -214,8 +233,8 @@ function sortStates() {
 }
 
 function stateSumCalc() {
-    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY s');
-    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY t');
+    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY s');
+    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY t');
     stateSum = {};
     Object.keys(statesAlpha).forEach(function(key) {
         stateSum[key] = {'e': 0, 'i': 0}
@@ -333,6 +352,8 @@ function setUp() {
     $('#viewSelect').change(viewChange);
     $('#sortSelect').change(sortStates);
     $('#closeState').click(unselectState);
+    $('#stateSelect').change(stateChange);
+    $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
 }
 function viewChange() {
     dotsIndex = $('#viewSelect').val();
@@ -357,13 +378,14 @@ function viewChange() {
     redraw();
 }
 function redraw() {
-    arcData = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow '+queryWhere()+' GROUP BY s, t');
+    arcData = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY s, t');
     drawDots();
     sortStates();
     drawArcs();
     computeRanks();
-    $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
-    $('#stateSelect').change(stateChange);
+    if (selectedState) {
+        selectState(selectedState);
+    }
 }
 function stateClick() {
     selectState($(this).data('state'));
@@ -400,7 +422,7 @@ function selectState(state) {
         where = 'WHERE ';
     }
     where += ' (s="'+state+'" OR t="'+state+'")';
-    var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow '+where+' GROUP BY s, t');
+    var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+where+' GROUP BY s, t');
     var arcs2 = [];
     for (var i = 0; i < arcs.length; i++) {
         if (arcs[i]['s'] == arcs[i]['t']) {

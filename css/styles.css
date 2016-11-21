@@ -92,7 +92,6 @@ svg rect.keyBox {
     top: 0;
     left: 0;
     width: 220px;
-    height: 236px;
     background-color: #ffffff;
     box-shadow: 0 1px 3px 0 rgba(31, 56, 76, 0.2);
     text-align: left;
@@ -173,7 +172,7 @@ svg rect.keyBox {
 }
 
 g.gray-arc path {
-    opacity: 0.3;
+    opacity: 0.15;
     transition: opacity 1s;
     transition: fill 1s;
     fill: none;
