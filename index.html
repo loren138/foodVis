@@ -15,6 +15,7 @@
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
     <script type="text/javascript" src="./js/vendor/jquery-ui.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script type="text/javascript">
         // TODO: Cursor to pointer over state circle/rect
         // TODO: Circle/rectangle red border (or reduced opacity) on hover
@@ -472,11 +473,11 @@ function drawBarGraph()
             },
             xAxis: {
                 categories: [
-                        'Animals and Fish', 'Cereal Grains', 'Agricultural Products', 'Product of Animal Origin',
-                        'Meat, Poultry, Fish, Seafood, and their preparations', 'Milled Grain Products',
-                        'Other Prepared Foodstuffs, and Fats and Oil',
-                        'Alcoholic Beverages and Denatured Alcohol',
-                        'Tobacco Products', 'Undefined'
+                    'Animals and Fish', 'Cereal Grains', 'Agricultural Products', 'Product of Animal Origin',
+                    'Meat, Poultry, Fish, Seafood, and their preparations', 'Milled Grain Products',
+                    'Other Prepared Foodstuffs, and Fats and Oil',
+                    'Alcoholic Beverages and Denatured Alcohol',
+                    'Tobacco Products', 'Undefined'
                 ]
             },
             yAxis: {
@@ -497,6 +498,12 @@ function drawBarGraph()
                 useHTML: true
             },
 
+            plotOptions: {
+                series: {
+                    borderWidth: 0
+                }
+            },
+
             series: [{
                 name: 'Import',
                 data: foodData['import'],
@@ -505,7 +512,18 @@ function drawBarGraph()
                 name: 'Export',
                 data: foodData['export'],
                 color: '#9ecbea'
-            }]
+            }, { 
+                name: 'Import Mean', 
+                type: 'columnrange', 
+                //500,000 is the mean and 510,000 is just for the width of red line 
+                data: [[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000]], 
+                color: '#ed5950'
+             }, { 
+                name: 'Export Mean', 
+                type: 'columnrange', 
+                data: [[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000]], 
+                color: '#ed5950'
+             }]
         });
 
         //foodChart.legend.group.hide();
@@ -539,7 +557,14 @@ function drawBarGraph()
             legend: {
                 enabled: false
             },
-            plotOptions: {column: {stacking: 'normal'}},
+            plotOptions: {
+                column: {
+                    stacking: 'normal'
+                },
+                series: {
+                    borderWidth: 0
+                }
+            },
 
             series: [
                 {name: 'Truck', data: [transID['T03']], stack: 'import'},
