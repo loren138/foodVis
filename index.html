@@ -7,11 +7,13 @@
 
     <link rel="stylesheet" type="text/css" href="./js/vendor/selectize/selectize.css"/>
     <link rel="stylesheet" type="text/css" href="./css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/jquery-ui.css"/>
     <link rel="stylesheet" type="text/css" href="./css/states.css"/>
     <script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
     <script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
+    <script type="text/javascript" src="./js/vendor/jquery-ui.min.js"></script>
     <script type="text/javascript">
         // TODO: Cursor to pointer over state circle/rect
         // TODO: Circle/rectangle red border (or reduced opacity) on hover
@@ -107,9 +109,9 @@ var statesAlpha = {
 var arcData, graph, states, dotsIndex;
 var stateSumNorm = { // What to divide by for states
     // [ 'forDots', 'forSelfDots', 'forArcWidth', 'forStateColor', 'forPopup']
-    'w': [8000, 1500, 500, 15000, 1000],
-    'v': [5000, 1500, 500, 5000, 1000],
-    'tm': [2000000000, 750000000, 500000000, 1500000000, 1000000000]
+    'w': [16000, 1500, 500, 15000, 1000],
+    'v': [10000, 1500, 500, 5000, 1000],
+    'tm': [4000, 750, 500, 1500, 1000]
 };
 function waitForData() {
     if (ready != 4) {
@@ -233,8 +235,8 @@ function sortStates() {
 }
 
 function stateSumCalc() {
-    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY s');
-    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY t');
+    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+queryWhere()+' GROUP BY s');
+    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+queryWhere()+' GROUP BY t');
     stateSum = {};
     Object.keys(statesAlpha).forEach(function(key) {
         stateSum[key] = {'e': 0, 'i': 0}
@@ -246,6 +248,7 @@ function stateSumCalc() {
     for (i = 0; i < data2.length; i++) {
         stateSum[data2[i].t]['i'] = data2[i]['w']
     }
+    console.log(graphYear, stateSum);
 }
 function drawDots() {
     stateSumCalc();
@@ -306,8 +309,27 @@ function drawDots() {
     });
 }
 var stateAbbr = {};
+        var graphYear = 2012;
 $(document).ready(waitForData);
 function setUp() {
+    $( "#slider" ).slider({
+        value:4,
+        min: 1,
+        max: 4,
+        step: 1,
+        slide: function( event, ui ) {
+            if (ui.value == 4) {
+                graphYear = 2012;
+            } else if (ui.value == 3) {
+                graphYear = 2007;
+            } else if (ui.value == 3) {
+                graphYear = 2002;
+            } else {
+                graphYear = 1997;
+            }
+            redraw();
+        }
+    });
     $.each($('.selectbox'), function(){
         var $this = $(this);
         selectList[$this.attr('id')] = $this.selectize({
@@ -378,7 +400,7 @@ function viewChange() {
     redraw();
 }
 function redraw() {
-    arcData = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+queryWhere()+' GROUP BY s, t');
+    arcData = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+queryWhere()+' GROUP BY s, t');
     drawDots();
     sortStates();
     drawArcs();
@@ -422,7 +444,7 @@ function selectState(state) {
         where = 'WHERE ';
     }
     where += ' (s="'+state+'" OR t="'+state+'")';
-    var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow2012 '+where+' GROUP BY s, t');
+    var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+where+' GROUP BY s, t');
     var arcs2 = [];
     for (var i = 0; i < arcs.length; i++) {
         if (arcs[i]['s'] == arcs[i]['t']) {
@@ -599,6 +621,7 @@ function addDot(box, i, extra, className) {
 </div>
 <div style="height:10px;">&nbsp;</div>
 <div id="arcsAndDots">
+    <div id="slider"></div>
     <div id="selectedState" style="display:none;">
         <span class="name">Georgia</span><br>
         <span class="key keyUnits">In Billions of Pounds</span>
@@ -669,6 +692,10 @@ function addDot(box, i, extra, className) {
         </table>
     </div>
     <svg id='arcGraph'>
+        <text x="1257" y="125" class="slider">2012</text>
+        <text x="1200" y="125" class="slider">2007</text>
+        <text x="1142" y="125" class="slider">2002</text>
+        <text x="1088" y="125" class="slider">1997</text>
         <g class='gray-arc gray-arc2'></g>
         <g class='gray-arc' id="selectedArc"></g>
     </svg>
