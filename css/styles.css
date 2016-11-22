@@ -277,6 +277,11 @@ g.gray-arc .export-line.color {
     top: 0;
     left: 0;
     width: 360px;
+    margin-bottom: 20px;
+}
+#foodBar, #transportBar {
+    height: 300px;
+    width: 100%;
 }
 #foodClassBar {
     /*left: 426px;*/

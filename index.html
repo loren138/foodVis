@@ -14,6 +14,7 @@
     <script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
     <script type="text/javascript" src="./js/vendor/jquery-ui.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <script type="text/javascript">
         // TODO: Cursor to pointer over state circle/rect
         // TODO: Circle/rectangle red border (or reduced opacity) on hover
@@ -153,7 +154,7 @@ function drawArcs() {
                     //.attr('id', arcData[i]['s']+'ToSelf')
                             .attr('class', 'import-line import-'+arcData[i]['t']+' export-'+arcData[i]['s'])
                             // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-                            .attr('d', 'M '+state1+' 425 a 1.5 1 0 0 1 '+xmove+' 0')
+                            .attr('d', 'M '+state1+' 380 a 1.7 1 0 0 1 '+xmove+' 0')
                             .attr('stroke-width', size)
 
             );
@@ -248,7 +249,6 @@ function stateSumCalc() {
     for (i = 0; i < data2.length; i++) {
         stateSum[data2[i].t]['i'] = data2[i]['w']
     }
-    console.log(graphYear, stateSum);
 }
 function drawDots() {
     stateSumCalc();
@@ -292,6 +292,14 @@ function drawDots() {
         //if (importDots + exportDots > 50) {
         //    exportDots = 60 - importDots;
         //}
+        if (importDots > 70) {
+            console.log('import dots restricted', importDots, key);
+            importDots = 70;
+        }
+        if (exportDots > 70) {
+            console.log('export dots restricted', exportDots, key);
+            exportDots = 70;
+        }
         for (var i = 0; i < importDots; i++) {
             addDot(box, i, 0, 'import');
         }
@@ -322,11 +330,12 @@ function setUp() {
                 graphYear = 2012;
             } else if (ui.value == 3) {
                 graphYear = 2007;
-            } else if (ui.value == 3) {
+            } else if (ui.value == 2) {
                 graphYear = 2002;
             } else {
                 graphYear = 1997;
             }
+            $('span.year').text(graphYear);
             redraw();
         }
     });
@@ -405,8 +414,186 @@ function redraw() {
     sortStates();
     drawArcs();
     computeRanks();
+    drawBarGraph();
     if (selectedState) {
         selectState(selectedState);
+    }
+}
+var foodChart;
+var transportChart;
+function drawBarGraph()
+{
+    var whereI = queryWhere();
+    var whereE = whereI;
+    if (selectedState) {
+        if (whereI) {
+            whereI = whereI + ' and t=\''+selectedState+'\'';
+            whereE = whereI + ' and s=\''+selectedState+'\'';
+        }
+        whereI = 'WHERE t=\''+selectedState+'\'';
+        whereE = 'WHERE s=\''+selectedState+'\'';
+    }
+    var foodI = alasql('SELECT fo, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY fo');
+    var foodE = alasql('SELECT fo, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY fo');
+    var transI = alasql('SELECT tr, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY tr');
+    var transE = alasql('SELECT tr, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY tr');
+    var foodData = {
+        'import': [0,0,0,0,0,0,0,0,0,0],
+        'export': [0,0,0,0,0,0,0,0,0,0]
+    };
+    var i = 0;
+    var foodPoint = {'F00': 9, 'F01':0, 'F02':1, 'F03':2,'F04':3,'F05':4,'F06':5,'F07':6,'F08':7,'F09':8};
+    var transID = {'T03': 0, 'T04':0, 'T05':0, 'T06':0,'T07':0,'T08':0,'T09':0,'T10':0,'T101':0,'T11':0, 'T14':0,'T00':0};
+    var transED = {'T03': 0, 'T04':0, 'T05':0, 'T06':0,'T07':0,'T08':0,'T09':0,'T10':0,'T101':0,'T11':0, 'T14':0,'T00':0};
+    for (i=0; i < foodI.length; i++) {
+        foodData['import'][foodPoint[foodI[i]['fo']]] = foodI[i]['w'];
+    }
+    for (i=0; i < foodE.length; i++) {
+        foodData['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w'];
+    }
+    for (i=0; i < transI.length; i++) {
+        transID[transI[i]['tr']] = transI[i]['w'];
+    }
+    for (i=0; i < transE.length; i++) {
+        transED[transE[i]['tr']] = transE[i]['w'];
+    }
+    console.log(transID)
+    if (!foodChart) {
+        Highcharts.setOptions({
+            lang: {
+                thousandsSep: ','
+            }
+        });
+        foodChart = Highcharts.chart('foodBar', {
+            chart: {type: 'column'},
+            title: {text: ''},
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                categories: [
+                        'Animals and Fish', 'Cereal Grains', 'Agricultural Products', 'Product of Animal Origin',
+                        'Meat, Poultry, Fish, Seafood, and their preparations', 'Milled Grain Products',
+                        'Other Prepared Foodstuffs, and Fats and Oil',
+                        'Alcoholic Beverages and Denatured Alcohol',
+                        'Tobacco Products', 'Undefined'
+                ]
+            },
+            yAxis: {
+                allowDecimals: false,
+                min: 0,
+                title: {
+                    text: null
+                }
+            },
+            credits: {
+                enabled: false
+            },
+
+            tooltip: {
+                headerFormat: '<b>{point.key}</b><br>',
+                pointFormat: '{series.name}: {point.y:,.1f}<br>',
+                shared: true,
+                useHTML: true
+            },
+
+            series: [{
+                name: 'Import',
+                data: foodData['import'],
+                color: '#305068'
+            }, {
+                name: 'Export',
+                data: foodData['export'],
+                color: '#9ecbea'
+            }]
+        });
+
+        //foodChart.legend.group.hide();
+        //foodChart.legend.box.hide();
+        transportChart = Highcharts.chart('transportBar', {
+            chart: {type: 'column'},
+            title: {text: ''},
+            credits: {
+                enabled: false
+            },
+            xAxis: {
+                categories: [
+                    'Truck', 'Rail', 'Water', 'Air', 'Parcel', 'Undefined'
+                ]
+            },
+            yAxis: {
+                allowDecimals: false,
+                min: 0,
+                title: {
+                    text: null
+                }
+            },
+
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.x + ' ('+this.series.options.stack+')</b><br/>' +
+                            this.series.name + ': ' + this.y.toLocaleString('en-US', {'maximumFractionDigits': 0}) + '<br/>' +
+                            'Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 0});
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {column: {stacking: 'normal'}},
+
+            series: [
+                {name: 'Truck', data: [transID['T03']], stack: 'import'},
+                {name: 'Truck', data: [transED['T03']], stack: 'export'},
+                {name: 'For-hire Truck', data: [transID['T04']], stack: 'import'},
+                {name: 'For-hire Truck', data: [transED['T04']], stack: 'export'},
+                {name: 'Private Truck', data: [transID['T05']], stack: 'import'},
+                {name: 'Private Truck', data: [transED['T05']], stack: 'export'},
+                {name: 'Rail', data: [null, transID['T06']], stack: 'import'},
+                {name: 'Rail', data: [null, transED['T06']], stack: 'export'},
+                {name: 'Water', data: [null, null, transID['T07']], stack: 'import'},
+                {name: 'Water', data: [null, null, transED['T07']], stack: 'export'},
+                {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import'},
+                {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export'},
+                {name: 'Great Lakes', data: [null, null, transID['T10']], stack: 'import'},
+                {name: 'Great Lakes', data: [null, null, transED['T10']], stack: 'export'},
+                {name: 'Multiple Waterways', data: [null, null, transID['T101']], stack: 'import'},
+                {name: 'Multiple Waterways', data: [null, null, transED['T101']], stack: 'export'},
+                {name: 'Air (includes truck & air)', data: [null, null, null, transID['T11']], stack: 'import'},
+                {name: 'Air (includes truck & air)', data: [null, null, null, transED['T11']], stack: 'export'},
+                {name: 'Parcel', data: [null, null, null, null, transID['T14']], stack: 'import'},
+                {name: 'Parcel', data: [null, null, null, null, transED['T14']], stack: 'export'},
+                {name: 'Undefined', data: [null, null, null, null, null, transID['T00']], stack: 'import'},
+                {name: 'Undefined', data: [null, null, null, null, null, transED['T00']], stack: 'export'}
+            ]
+        });
+
+        //transportChart.legend.group.hide();
+        //transportChart.legend.box.hide();
+    } else {
+        foodChart.series[0].setData(foodData['import']);
+        foodChart.series[1].setData(foodData['export']);
+        transportChart.series[0].setData([transID['T03']]);
+        transportChart.series[1].setData([transED['T03']]);
+        transportChart.series[2].setData([transID['T04']]);
+        transportChart.series[3].setData([transED['T04']]);
+        transportChart.series[4].setData([transID['T05']]);
+        transportChart.series[5].setData([transED['T05']]);
+        transportChart.series[6].setData([null, transID['T06']]);
+        transportChart.series[7].setData([null, transED['T06']]);
+        transportChart.series[8].setData([null, null, transID['T07']]);
+        transportChart.series[9].setData([null, null, transED['T07']]);
+        transportChart.series[10].setData([null, null, transID['T08']]);
+        transportChart.series[11].setData([null, null, transED['T08']]);
+        transportChart.series[12].setData([null, null, transID['T10']]);
+        transportChart.series[13].setData([null, null, transED['T10']]);
+        transportChart.series[14].setData([null, null, transID['T101']]);
+        transportChart.series[15].setData([null, null, transED['T101']]);
+        transportChart.series[16].setData([null, null, null, transID['T11']]);
+        transportChart.series[17].setData([null, null, null, transED['T11']]);
+        transportChart.series[18].setData([null, null, null, null, transID['T14']]);
+        transportChart.series[19].setData([null, null, null, null, transED['T14']]);
+        transportChart.series[20].setData([null, null, null, null, null, transID['T00']]);
+        transportChart.series[21].setData([null, null, null, null, null, transED['T00']]);
     }
 }
 function stateClick() {
@@ -427,9 +614,11 @@ function unselectState() {
     selectList.stateSelect[0].selectize.setValue('all', true);
     selectedState = null;
     $('#selectedState').hide();
+    $('span.state').text('U.S.');
 }
 function selectState(state) {
     stateHoverOut();
+    $('span.state').text(state);
     var arcG = $('#selectedArc');
     if (selectedState) {
         unselectState();
@@ -478,7 +667,7 @@ function selectState(state) {
                 //.attr('id', arcData[i]['s']+'ToSelf')
                         .attr('class', arcs2[i][2])
                         // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-                        .attr('d', 'M '+state1+' 425 a 1.5 1 0 0 1 '+xmove+' 0')
+                        .attr('d', 'M '+state1+' 380 a 1.7 1 0 0 1 '+xmove+' 0')
                         .attr('stroke-width', size)
 
         );
@@ -556,8 +745,8 @@ function stateHoverOut() {
 function addDot(box, i, extra, className) {
     box.append(
         $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
-            .attr('cx', ((i + extra) % 5) * 4 + 4)
-            .attr('cy', Math.floor((i+extra)/5) * 4).attr('r', 1.5).addClass(className)
+            .attr('cx', ((i + extra) % 4) * 5 + 4)
+            .attr('cy', Math.floor((i+extra)/4) * 5).attr('r', 2).addClass(className)
     );
 }
 </script>
@@ -943,13 +1132,22 @@ function addDot(box, i, extra, className) {
     </div>
     <div id="foodClassBar">
         <h2>Food Classification, <span class="state">U.S.</span> <span class="year">2012</span></h2>
-        <!-- https://github.gatech.edu/lklingman3/info-vis/issues/2 -->
-        <!-- Complete using flot (http://www.flotcharts.org/flot/examples/stacking/index.html) or D3 -->
+        <div class="notes keyUnits">In Billions of Pounds</div>
+        <div class="key graphKey">
+            <svg width="120" height="15" class="sKey">
+                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                <text x="18" y="11" class="keyText">Import</text>
+
+                <rect x="60" y="2" width="11" height="11" class="keyBox export"></rect>
+                <text x="78" y="11" class="keyText">Export</text>
+            </svg>
+        </div>
+        <div id="foodBar"></div>
     </div>
     <div id="transportationBar">
         <h2>Transportation Mode, <span class="state">U.S.</span> <span class="year">2012</span></h2>
-        <!-- https://github.gatech.edu/lklingman3/info-vis/issues/3 -->
-        <!-- Complete using flot (http://www.flotcharts.org/flot/examples/stacking/index.html) or D3 -->
+        <div class="notes keyUnits">In Billions of Pounds</div>
+        <div id="transportBar"></div>
     </div>
 </div>
 </body>
