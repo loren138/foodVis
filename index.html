@@ -17,15 +17,6 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script type="text/javascript">
-        // TODO: Cursor to pointer over state circle/rect
-        // TODO: Circle/rectangle red border (or reduced opacity) on hover
-        // TODO: Fix selected state lines on change filter
-        // TODO: Select state turn red in map
-        // TODO: Update map to show import/export for just that state?
-        // TODO: 4 circles per line for import/export dots and shrink graph
-        // TODO: Map update opacity for connected states on state select
-        // TODO: State edge opacity to 0.8 on select
-        // TODO: State dot hover to #5B6779 or red border
         var stateSum;
         var ready = 0;
         var stateFlow2012;
@@ -234,6 +225,9 @@ function sortStates() {
         //}
     });
     drawArcs();
+    if (selectedState) {
+        selectState(selectedState);
+    }
 }
 
 function stateSumCalc() {
@@ -245,10 +239,14 @@ function stateSumCalc() {
     });
 
     for (var i = 0; i < data1.length; i++) {
-        stateSum[data1[i].s]['e'] = data1[i]['w']
+        if (data1[i].s) {
+            stateSum[data1[i].s]['e'] = data1[i]['w']
+        }
     }
     for (i = 0; i < data2.length; i++) {
-        stateSum[data2[i].t]['i'] = data2[i]['w']
+        if (data2[i].t) {
+            stateSum[data2[i].t]['i'] = data2[i]['w']
+        }
     }
 }
 function drawDots() {
@@ -383,7 +381,7 @@ function setUp() {
     $('#filterFood, #filterTrans').change(redraw);
     $('#viewSelect').change(viewChange);
     $('#sortSelect').change(sortStates);
-    $('#closeState').click(unselectState);
+    $('#closeState').click(function() { unselectState(); drawBarGraph(); });
     $('#stateSelect').change(stateChange);
     $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
 }
@@ -421,9 +419,10 @@ function redraw() {
     }
 }
 var foodChart;
+var foodDataMean;
+var transDataMean;
 var transportChart;
-function drawBarGraph()
-{
+function barGraphData(state) {
     var whereI = queryWhere();
     var whereE = whereI;
     if (selectedState) {
@@ -446,19 +445,69 @@ function drawBarGraph()
     var foodPoint = {'F00': 9, 'F01':0, 'F02':1, 'F03':2,'F04':3,'F05':4,'F06':5,'F07':6,'F08':7,'F09':8};
     var transID = {'T03': 0, 'T04':0, 'T05':0, 'T06':0,'T07':0,'T08':0,'T09':0,'T10':0,'T101':0,'T11':0, 'T14':0,'T00':0};
     var transED = {'T03': 0, 'T04':0, 'T05':0, 'T06':0,'T07':0,'T08':0,'T09':0,'T10':0,'T101':0,'T11':0, 'T14':0,'T00':0};
+    var mean = [0,0,0,0,0,0,0,0,0,0];
+    var foodMax = 0;
     for (i=0; i < foodI.length; i++) {
+        if (foodI[i]['w'] > foodMax) {
+            foodMax = foodI[i]['w'];
+        }
         foodData['import'][foodPoint[foodI[i]['fo']]] = foodI[i]['w'];
+        mean[foodPoint[foodI[i]['fo']]] = foodI[i]['w'] / 51;
     }
     for (i=0; i < foodE.length; i++) {
+        if (foodE[i]['w'] > foodMax) {
+            foodMax = foodE[i]['w'];
+        }
         foodData['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w'];
+        //foodDataMean['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w'] / 51;
     }
+    foodDataMean = [
+        [mean[0], mean[0] + 2/(350/foodMax)],
+        [mean[1], mean[1] + foodMax/200],
+        [mean[2], mean[2] + foodMax/200],
+        [mean[3], mean[3] + foodMax/200],
+        [mean[4], mean[4] + foodMax/200],
+        [mean[5], mean[5] + foodMax/200],
+        [mean[6], mean[6] + foodMax/200],
+        [mean[7], mean[7] + foodMax/200],
+        [mean[8], mean[8] + foodMax/200],
+        [mean[9], mean[9] + foodMax/200]
+    ];
+    foodDataMean = [
+        [mean[0], mean[0]],
+        [mean[1], mean[1]],
+        [mean[2], mean[2]],
+        [mean[3], mean[3]],
+        [mean[4], mean[4]],
+        [mean[5], mean[5]],
+        [mean[6], mean[6]],
+        [mean[7], mean[7]],
+        [mean[8], mean[8]],
+        [mean[9], mean[9]]
+    ];
     for (i=0; i < transI.length; i++) {
         transID[transI[i]['tr']] = transI[i]['w'];
     }
     for (i=0; i < transE.length; i++) {
         transED[transE[i]['tr']] = transE[i]['w'];
     }
-    console.log(transID)
+    transDataMean = {
+        'parcel': transID['T14'] / 51,
+        'rail': transID['T06'] / 51,
+        'water': (transID['T07'] + transID['T08'] + transID['T09'] + transID['T10'] + transID['T101']) / 51,
+        'air': transID['T11'] / 51,
+        'truck': (transID['T03'] + transID['T04'] + transID['T05']) / 51,
+        'undefined': transID['T00'] / 51
+    };
+    return [foodData, transID, transED];
+}
+function drawBarGraph()
+{
+    var data = barGraphData(selectedState);
+    var foodData = data[0];
+    var transID = data[1];
+    var transED = data[2];
+
     if (!foodChart) {
         Highcharts.setOptions({
             lang: {
@@ -509,20 +558,24 @@ function drawBarGraph()
                 data: foodData['import'],
                 color: '#305068'
             }, {
+                name: 'Import Mean',
+                type: 'errorbar',
+                //500,000 is the mean and 510,000 is just for the width of red line 
+                data: foodDataMean,
+                color: '#ed5950',
+                whiskerLength: '95%',
+                whiskerWidth: '1'
+            }, {
                 name: 'Export',
                 data: foodData['export'],
                 color: '#9ecbea'
             }, { 
-                name: 'Import Mean', 
-                type: 'columnrange', 
-                //500,000 is the mean and 510,000 is just for the width of red line 
-                data: [[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000]], 
-                color: '#ed5950'
-             }, { 
                 name: 'Export Mean', 
-                type: 'columnrange', 
-                data: [[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000],[500000, 510000]], 
-                color: '#ed5950'
+                type: 'errorbar', 
+                data: foodDataMean,
+                color: '#ed5950',
+                whiskerLength: '95%',
+                whiskerWidth: '1'
              }]
         });
 
@@ -579,8 +632,10 @@ function drawBarGraph()
                 {name: 'Water', data: [null, null, transED['T07']], stack: 'export'},
                 {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import'},
                 {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export'},
-                {name: 'Great Lakes', data: [null, null, transID['T10']], stack: 'import'},
-                {name: 'Great Lakes', data: [null, null, transED['T10']], stack: 'export'},
+                {name: 'Great Lakes', data: [null, null, transID['T09']], stack: 'import'},
+                {name: 'Great Lakes', data: [null, null, transED['T09']], stack: 'export'},
+                {name: 'Deep Sea', data: [null, null, transID['T10']], stack: 'import'},
+                {name: 'Deep Sea', data: [null, null, transED['T10']], stack: 'export'},
                 {name: 'Multiple Waterways', data: [null, null, transID['T101']], stack: 'import'},
                 {name: 'Multiple Waterways', data: [null, null, transED['T101']], stack: 'export'},
                 {name: 'Air (includes truck & air)', data: [null, null, null, transID['T11']], stack: 'import'},
@@ -596,7 +651,7 @@ function drawBarGraph()
         //transportChart.legend.box.hide();
     } else {
         foodChart.series[0].setData(foodData['import']);
-        foodChart.series[1].setData(foodData['export']);
+        foodChart.series[2].setData(foodData['export']);
         transportChart.series[0].setData([transID['T03']]);
         transportChart.series[1].setData([transED['T03']]);
         transportChart.series[2].setData([transID['T04']]);
@@ -623,6 +678,7 @@ function drawBarGraph()
 }
 function stateClick() {
     selectState($(this).data('state'));
+    drawBarGraph();
 }
 function stateChange() {
     var val = $('#stateSelect').val();
@@ -631,19 +687,25 @@ function stateChange() {
     } else {
         selectState(val);
     }
+    drawBarGraph();
 }
 var selectedState = null;
 function unselectState() {
     $('#'+selectedState+'StateBox').removeClass('selected');
+    $('#plotMap').find('.selected').removeClass('selected');
     $('#selectedArc').empty();
     selectList.stateSelect[0].selectize.setValue('all', true);
     selectedState = null;
     $('#selectedState').hide();
     $('span.state').text('U.S.');
+    $('.noState').show();
+    $('.withState').hide();
 }
 function selectState(state) {
     stateHoverOut();
     $('span.state').text(state);
+    $('.noState').hide();
+    $('.withState').show();
     var arcG = $('#selectedArc');
     if (selectedState) {
         unselectState();
@@ -651,6 +713,7 @@ function selectState(state) {
     selectedState = state;
     selectList.stateSelect[0].selectize.setValue(state, true);
     $('#'+state+'StateBox').addClass('selected');
+    $('#stateMap'+state).addClass('selected');
     var where = queryWhere();
     if (where) {
         where += ' AND ';
@@ -753,6 +816,7 @@ function stateHoverIn() {
     }
     var item = $('#hoverState');
     var state = $(this).data('state');
+    $('#'+state+'StateBox').addClass('hovered');
     item.css('left', states[state]*25-25-50);
     $('#hoverImport').text((stateSum[state]['i'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
     $('#hoverExport').text((stateSum[state]['e'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
@@ -765,6 +829,7 @@ function stateHoverIn() {
 }
 function stateHoverOut() {
     //$('#hoverState').stop().show(200);
+    $('.hovered').removeClass('hovered');
     $('#hoverState').hide();
 }
 function addDot(box, i, extra, className) {
@@ -885,7 +950,7 @@ function addDot(box, i, extra, className) {
             </tr>
         </tbody></table>
     </div>
-    <div id="hoverState" style="top:285px;left:10px;display:none;" class="hoverState">
+    <div id="hoverState" style="top:235px;left:10px;display:none;" class="hoverState">
         <span id="hoverStateName">Georgia</span><br>
         <span class="greyText keyUnits">In Billions of Pounds</span>
         <table style="border:none;width:100%;">
@@ -1159,12 +1224,22 @@ function addDot(box, i, extra, className) {
         <h2>Food Classification, <span class="state">U.S.</span> <span class="year">2012</span></h2>
         <div class="notes keyUnits">In Billions of Pounds</div>
         <div class="key graphKey">
-            <svg width="120" height="15" class="sKey">
+            <svg width="120" height="15" class="sKey noState">
                 <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
                 <text x="18" y="11" class="keyText">Import</text>
 
                 <rect x="60" y="2" width="11" height="11" class="keyBox export"></rect>
                 <text x="78" y="11" class="keyText">Export</text>
+            </svg>
+            <svg width="180" height="15" class="sKey withState" style="display:none">
+                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                <text x="18" y="11" class="keyText">Import</text>
+
+                <rect x="60" y="2" width="11" height="11" class="keyBox export"></rect>
+                <text x="78" y="11" class="keyText">Export</text>
+
+                <rect x="120" y="5" class="mean" width="11" height="3"></rect>
+                <text x="138" y="11" class="keyText">Mean</text>
             </svg>
         </div>
         <div id="foodBar"></div>
@@ -1172,6 +1247,25 @@ function addDot(box, i, extra, className) {
     <div id="transportationBar">
         <h2>Transportation Mode, <span class="state">U.S.</span> <span class="year">2012</span></h2>
         <div class="notes keyUnits">In Billions of Pounds</div>
+        <div class="key graphKey">
+            <svg width="120" height="15" class="sKey noState">
+                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                <text x="18" y="11" class="keyText">Import</text>
+
+                <rect x="60" y="2" width="11" height="11" class="keyBox export"></rect>
+                <text x="78" y="11" class="keyText">Export</text>
+            </svg>
+            <svg width="180" height="15" class="sKey withState" style="display:none">
+                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                <text x="18" y="11" class="keyText">Import</text>
+
+                <rect x="60" y="2" width="11" height="11" class="keyBox export"></rect>
+                <text x="78" y="11" class="keyText">Export</text>
+
+                <rect x="120" y="5" class="mean" width="11" height="3"></rect>
+                <text x="138" y="11" class="keyText">Mean</text>
+            </svg>
+        </div>
         <div id="transportBar"></div>
     </div>
 </div>

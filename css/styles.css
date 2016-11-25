@@ -73,6 +73,11 @@ svg rect.keyBox {
     width: 11px;
     height: 11px;
 }
+svg rect.mean {
+    width: 11px;
+    height: 3px;
+    fill: #ed5950;
+}
 #bottomRow {
     width: 1280px;
     margin: 20px auto 0;
@@ -187,6 +192,10 @@ svg rect.keyBox {
     color: #ed5950;
 }
 
+div.graphKey {
+    margin: 10px 0;
+}
+
 g.gray-arc path {
     opacity: 0.15;
     transition: opacity 1s;
@@ -195,7 +204,7 @@ g.gray-arc path {
     stroke: rgb(198, 204, 211);
 }
 g.gray-arc path.color {
-    opacity: 1;
+    opacity: 0.8;
 }
 
 .import {
@@ -228,12 +237,19 @@ g.gray-arc .export-line.color {
 #arcGraph g.state {
     transition: all 1s ease-in-out;
 }
-
+#arcGraph g.state circle.stateCircle {
+    cursor: pointer;
+}
+#arcGraph g.state.hovered circle.stateCircle {
+    stroke: #ed5950;
+    stroke-width: 1px;
+}
 #arcGraph g.state circle.stateCircle, svg.sKey circle.stateCircle {
     fill: #152740;
 }
 #arcGraph g.state rect {
     fill: #152740;
+    cursor: pointer;
     /*fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9*/
 }
 #arcGraph g.state.selected rect {
@@ -250,7 +266,7 @@ g.gray-arc .export-line.color {
     font-style: normal;
     font-stretch: normal;
     text-align: center;
-    cursor: default;
+    cursor: pointer;
     user-select: none;
 }
 
@@ -306,6 +322,10 @@ g.gray-arc .export-line.color {
     fill: #ffffff;
     dominant-baseline: central;
     text-anchor: middle;
+}
+#map g.selected rect {
+    stroke: #ed5950;
+    stroke-width: 2px;
 }
 #map rect {
     fill: #eee;
