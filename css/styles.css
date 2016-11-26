@@ -122,13 +122,23 @@ svg rect.mean {
     color: #152740;
     padding: 15px;
 }
+#selectedState div.table {
+    width: 100%;
+    margin: 6px 0;
+    border-top: solid 2px #e1e4e7;
+    padding-top: 5px;
+}
+#selectedState div.table div {
+    width: 100%;
+    height: 100px;
+    overflow-y: auto;
+}
 #selectedState .name {
     font-size: 14px;
 }
 #selectedState table {
     border:none;
     width: 100%;
-    margin-top: 10px;
 }
 #selectedState td {
     padding: 4px 0;
@@ -137,12 +147,7 @@ svg rect.mean {
     width: 62px;
 }
 #selectedState td.smallW {
-    width: 32px;
-}
-#selectedState .section {
-    margin: 3px 0;
-    width: 100%;
-    border-bottom: solid 2px #e1e4e7;
+    width: 45px;
 }
 #selectedState .key {
     font-size: 10px;

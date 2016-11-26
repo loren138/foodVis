@@ -119,10 +119,7 @@ function drawArcs() {
     //for (var i = 0; i < arcData.length; i++) {
     for (var i = 0; i < arcData.length; i++) {
         if (arcData[i]['s'] == arcData[i]['t']) {
-            // Draw Circle
-            // TODO: Normalize to area and change to total weight of all, when selected show this number as an outer ring
-            // TODO: and limit dot size more
-            //var size = Math.round(arcData[i][dotsIndex]/stateSumNorm[dotsIndex][1]*10)/10;
+            // This is handled elsewhere
         } else {
             // Draw Arc
             var size = Math.round(arcData[i]['w']/stateSumNorm[dotsIndex][2]*10)/10;
@@ -916,20 +913,84 @@ function selectState(state) {
         );
     }
     arcG.find('path').addClass('color');
+    buildStateTable(state);
+}
+function buildStateTable(state) {
+    var whereI = queryWhere();
+    var whereE = whereI;
+    if (whereI) {
+        whereI = whereI + ' and t=\''+selectedState+'\'';
+        whereE = whereI + ' and s=\''+selectedState+'\'';
+    } else {
+        whereI = 'WHERE t=\'' + selectedState + '\'';
+        whereE = 'WHERE s=\'' + selectedState + '\'';
+    }
+    var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY s');
+    var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY t');
+    var sStateSum = {};
+    Object.keys(statesAlpha).forEach(function(key) {
+        sStateSum[key] = {'e': 0, 'i': 0}
+    });
+
+    for (var i = 0; i < data1.length; i++) {
+        if (data1[i].s) {
+            sStateSum[data1[i].s]['e'] = data1[i]['w']
+        }
+    }
+    for (i = 0; i < data2.length; i++) {
+        if (data2[i].t) {
+            sStateSum[data2[i].t]['i'] = data2[i]['w']
+        }
+    }
+    var stateRankIa = [];
+    var stateRankEa = [];
+    Object.keys(states).forEach(function (key) {
+        stateRankIa.push([sStateSum[key]['i'], key]);
+        stateRankEa.push([sStateSum[key]['e'], key]);
+    });
+    stateRankIa.sort(function (a, b) { return b[0]-a[0]; });
+    stateRankEa.sort(function (a, b) { return b[0]-a[0]; });
     var div = $('#selectedState');
     div.find('.name').text(stateAbbr[state]);
-    var table = div.find('table tbody');
+    var table = $('#sameState');
     table.empty();
-    table.append(buildStateRow(state, state, [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildSectionRow());
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildSectionRow());
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
-    table.append(buildStateRow(state, 'GA', [[234, 'importDot'], [544, 'exportDot']]));
+    table.append(buildStateRow(state, state, [
+            [(sStateSum[state]['i'] / stateSumNorm[dotsIndex][4]).toPrecision(3), 'importDot'],
+            [(stateSum[state]['e'] / stateSumNorm[dotsIndex][4]).toPrecision(3), 'exportDot']
+    ]));
+    table = $('#importState');
+    table.empty();
+    for (i = 0; i < stateRankIa.length; i++) {
+        if (stateRankIa[i][1] == state || sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4] < 0.001) {
+            continue;
+        }
+        var temp1 = (sStateSum[stateRankIa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
+        temp1 = Math.round(temp1*1000)/1000;
+        var temp2 = (sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
+        temp2 = Math.round(temp2*1000)/1000;
+
+        table.append(buildStateRow(state, stateRankIa[i][1], [
+            [temp2.toPrecision(3).substr(0,5), 'importDot'],
+            [temp1.toPrecision(3).substr(0,5), 'exportDot']
+        ]));
+    }
+
+    table = $('#exportState');
+    table.empty();
+    for (i = 0; i < stateRankEa.length; i++) {
+        if (stateRankEa[i][1] == state || sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4] < 0.001) {
+            continue;
+        }
+        temp1 = (sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
+        temp1 = Math.round(temp1*1000)/1000;
+        temp2 = (sStateSum[stateRankEa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
+        temp2 = Math.round(temp2*1000)/1000;
+
+        table.append(buildStateRow(stateRankEa[i][1], state, [
+            [temp2.toPrecision(3).substr(0,5), 'importDot'],
+            [temp1.toPrecision(3).substr(0,5), 'exportDot']
+        ]));
+    }
     div.show();
 }
 function buildSectionRow() {
@@ -1060,50 +1121,33 @@ function addDot(box, i, extra, className) {
         <span class="name">Georgia</span><br>
         <span class="key keyUnits">In Billions of Pounds</span>
         <img src="x.png" style="position: absolute; top: 10px;right:10px;" alt="Close" id="closeState">
-        <table><tbody>
+        <table><tbody id="sameState">
             <tr>
                 <td class="state">GA&rarr;GA</td>
                 <td class="number smallW"><span class="importDot">&bull;</span> 234</td>
                 <td class="number"><span class="exportDot">&bull;</span> 544</td>
             </tr>
+            </tbody>
+        </table>
+        <div class="table"><div>
+        <table><tbody id="importState">
             <tr><td colspan="3"><div class="section"></div></td></tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            <tr><td colspan="3"><div class="section"></div></td></tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
             <tr>
                 <td class="state">GA&rarr;GA</td>
                 <td class="number"><span class="importDot">&bull;</span> 234</td>
                 <td class="number"><span class="exportDot">&bull;</span> 544</td>
             </tr>
         </tbody></table>
+        </div></div>
+        <div class="table"><div>
+        <table><tbody id="exportState">
+            <tr>
+                <td class="state">GA&rarr;GA</td>
+                <td class="number"><span class="importDot">&bull;</span> 234</td>
+                <td class="number"><span class="exportDot">&bull;</span> 544</td>
+            </tr>
+        </tbody></table>
+        </div></div>
     </div>
     <div id="hoverState" style="top:235px;left:10px;display:none;" class="hoverState">
         <span id="hoverStateName">Georgia</span><br>
