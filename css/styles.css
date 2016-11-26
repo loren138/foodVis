@@ -327,6 +327,9 @@ g.gray-arc .export-line.color {
     stroke: #ed5950;
     stroke-width: 2px;
 }
+#map g.dim rect {
+    opacity: 0.2;
+}
 #map rect {
     fill: #eee;
 }

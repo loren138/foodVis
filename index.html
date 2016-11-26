@@ -793,6 +793,7 @@ function unselectState() {
     $('span.state').text('U.S.');
     $('.noState').show();
     $('.withState').hide();
+    $('#mapSVG').children('g').removeClass('dim');
 }
 function selectState(state) {
     stateHoverOut();
@@ -806,7 +807,6 @@ function selectState(state) {
     $('.noState').hide();
     $('.withState').show();
     $('#'+state+'StateBox').addClass('selected');
-    $('#stateMap'+state).addClass('selected');
     var where = queryWhere();
     if (where) {
         where += ' AND ';
@@ -815,14 +815,18 @@ function selectState(state) {
     }
     where += ' (s="'+state+'" OR t="'+state+'")';
     var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+where+' GROUP BY s, t');
-    var arcs2 = [];
+    var arcs2 = [];    $('#mapSVG').children('g').addClass('dim');
+    $('#stateMap'+state).addClass('selected').removeClass('dim');
+
     for (var i = 0; i < arcs.length; i++) {
         if (arcs[i]['s'] == arcs[i]['t']) {
             continue; // TODO: code this
         } else if (arcs[i]['s'] == state) {
             arcs2.push([arcs[i]['w'], arcs[i]['t'], 'export-line']);
+            $('#stateMap'+arcs[i].t).removeClass('dim');
         } else {
             arcs2.push([arcs[i]['w'], arcs[i]['s'], 'import-line']);
+            $('#stateMap'+arcs[i].s).removeClass('dim');
         }
     }
     arcs2.sort(function(a,b) { return b[0] - a[0]; });
@@ -1105,7 +1109,7 @@ function addDot(box, i, extra, className) {
             </svg>
         </div>
         <div id="plotMap">
-            <svg height="240" width="360">
+            <svg height="240" width="360" id="mapSVG">
                 <g id="stateMapME" transform="translate(330,0)">
                     <rect width="29" height="29"></rect>
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">ME</text>
