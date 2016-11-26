@@ -455,14 +455,14 @@ function barGraphData(national) {
         if (foodI[i]['w'] > foodMax) {
             foodMax = foodI[i]['w'];
         }
-        foodData['import'][foodPoint[foodI[i]['fo']]] = foodI[i]['w']/1000;
-        mean[foodPoint[foodI[i]['fo']]] = foodI[i]['w'] / 51/1000;
+        foodData['import'][foodPoint[foodI[i]['fo']]] = foodI[i]['w']/ stateSumNorm[dotsIndex][4];
+        mean[foodPoint[foodI[i]['fo']]] = foodI[i]['w'] / 51/ stateSumNorm[dotsIndex][4];
     }
     for (i=0; i < foodE.length; i++) {
         if (foodE[i]['w'] > foodMax) {
             foodMax = foodE[i]['w'];
         }
-        foodData['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w']/1000;
+        foodData['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w']/ stateSumNorm[dotsIndex][4];
         //foodDataMean['export'][foodPoint[foodE[i]['fo']]] = foodE[i]['w'] / 51;
     }
     if (national) {
@@ -492,10 +492,10 @@ function barGraphData(national) {
         ];
     }
     for (i=0; i < transI.length; i++) {
-        transID[transI[i]['tr']] = transI[i]['w']/1000;
+        transID[transI[i]['tr']] = transI[i]['w']/ stateSumNorm[dotsIndex][4];
     }
     for (i=0; i < transE.length; i++) {
-        transED[transE[i]['tr']] = transE[i]['w']/1000;
+        transED[transE[i]['tr']] = transE[i]['w']/ stateSumNorm[dotsIndex][4];
     }
     if (national) {
         transDataMean = {
