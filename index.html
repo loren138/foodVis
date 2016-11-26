@@ -102,8 +102,8 @@ var arcData, graph, states, dotsIndex;
 var stateSumNorm = { // What to divide by for states
     // [ 'forDots', 'forSelfDots', 'forArcWidth', 'forStateColor', 'forPopup']
     'w': [16000, 1500, 500, 15000, 1000],
-    'v': [10000, 1500, 500, 5000, 1000],
-    'tm': [4000, 750, 500, 1500, 1000]
+    'v': [10000, 1000, 500, 5000, 1000],
+    'tm': [4000, 300, 500, 1500, 1000]
 };
 function waitForData() {
     if (ready != 4) {
@@ -252,18 +252,25 @@ function drawDots() {
     stateSumCalc();
 
     Object.keys(states).forEach(function(key) {
-        var size = Math.round((stateSum[key]['i'] + stateSum[key]['e'])/stateSumNorm[dotsIndex][1])/10;
+        var size = Math.round(Math.sqrt(
+                (stateSum[key]['i'] + stateSum[key]['e'])/stateSumNorm[dotsIndex][1]
+            ) * 6)/10;
         if (size < 3) {
             size = 3;
         }
         if (size > 10) {
-            size = 10
+            size = 10;
         }
         var selfCircle = $('#'+key+'ToSelf');
         if (selfCircle.length) {
             selfCircle.attr('r', size);
         } else {
             $('#' + key + 'StateBox').append(
+                    // Add the White Circle
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
+                            .attr('cx', 12)
+                            .attr('cy', 8).attr('r', 10).addClass('stateCircleWhite')
+            ).append(
                     // Add the Big Circle
                     $(document.createElementNS("http://www.w3.org/2000/svg", "circle")).attr('id', key + 'ToSelf')
                             .attr('cx', 12).data('state', key)
@@ -831,6 +838,7 @@ function unselectState() {
     $('.noState').show();
     $('.withState').hide();
     $('#mapSVG').children('g').removeClass('dim');
+    $('.stateCircleSelf').remove();
 }
 function selectState(state) {
     stateHoverOut();
@@ -843,7 +851,8 @@ function selectState(state) {
     $('span.state').text(state);
     $('.noState').hide();
     $('.withState').show();
-    $('#'+state+'StateBox').addClass('selected');
+    var stateBox = $('#'+state+'StateBox');
+    stateBox.addClass('selected');
     var where = queryWhere();
     if (where) {
         where += ' AND ';
@@ -857,7 +866,19 @@ function selectState(state) {
 
     for (var i = 0; i < arcs.length; i++) {
         if (arcs[i]['s'] == arcs[i]['t']) {
-            continue; // TODO: code this
+            var size2 = Math.round(arcs[i]['w']/stateSumNorm[dotsIndex][1])/10;
+            if (size2 < 1) {
+                size2 = 1;
+            }
+            if (size2 > 5) {
+                size2 = 5
+            }
+            stateBox.prepend(
+                    // Add the Big Circle
+                    $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
+                            .attr('cx', 12)
+                            .attr('cy', 8).attr('r', size2+10).addClass('stateCircleSelf')
+            );
         } else if (arcs[i]['s'] == state) {
             arcs2.push([arcs[i]['w'], arcs[i]['t'], 'export-line']);
             $('#stateMap'+arcs[i].t).removeClass('dim');

@@ -240,11 +240,19 @@ g.gray-arc .export-line.color {
 #arcGraph g.state circle.stateCircle {
     cursor: pointer;
 }
+#arcGraph g.state.selected circle.stateCircleWhite {
+    opacity: 1;
+}
+#arcGraph g.state circle.stateCircleWhite {
+    opacity: 0;
+    fill: white;
+}
 #arcGraph g.state.hovered circle.stateCircle {
     stroke: #ed5950;
     stroke-width: 1px;
 }
-#arcGraph g.state circle.stateCircle, svg.sKey circle.stateCircle {
+#arcGraph g.state circle.stateCircle, svg.sKey circle.stateCircle,
+#arcGraph g.state circle.stateCircleSelf {
     fill: #152740;
 }
 #arcGraph g.state rect {
