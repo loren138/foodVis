@@ -9,7 +9,6 @@
     <link rel="stylesheet" type="text/css" href="./css/styles.css"/>
     <link rel="stylesheet" type="text/css" href="./css/jquery-ui.css"/>
     <link rel="stylesheet" type="text/css" href="./css/states.css"/>
-    <script type="text/javascript" src="./js/vendor/d3.v3.min.js"></script>
     <script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
     <script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
@@ -515,8 +514,46 @@ function barGraphData(national) {
     }
     return [foodData, transID, transED];
 }
+function drawYearBarGraph()
+{
+    var whereI = queryWhere();
+    var whereE = whereI;
+    var iWeight = [0,0,0,0], eWeight = [0,0,0,0], tempI, tempE;
+    var years = [1997, 2002, 2007, 2012];
+    if (selectedState) {
+        if (whereI) {
+            whereI = whereI + ' and t=\''+selectedState+'\'';
+            whereE = whereI + ' and s=\''+selectedState+'\'';
+        } else {
+            whereI = 'WHERE t=\'' + selectedState + '\'';
+            whereE = 'WHERE s=\'' + selectedState + '\'';
+        }
+    }
+    var max = 0;
+    for (var i = 0; i < years.length; i++) {
+        if (selectedState) {
+            tempI = alasql('SELECT SUM(' + dotsIndex + ') AS w FROM stateFlow' + years[i] + ' ' + whereI);
+            tempE = alasql('SELECT SUM(' + dotsIndex + ') AS w FROM stateFlow' + years[i] + ' ' + whereE);
+        } else {
+            tempI = tempE = alasql('SELECT SUM('+dotsIndex+') AS w FROM stateFlow'+years[i]+' '+whereE);
+        }
+        iWeight[i] = tempI[0]['w'] ? tempI[0]['w'] : 0;
+        eWeight[i] = tempE[0]['w'] ? tempE[0]['w'] : 0;
+        var temp = iWeight[i] + eWeight[i];
+        if (max < temp) {
+            max = temp;
+        }
+    }
+    for (i = 0; i < years.length; i++) {
+        var iHeight = Math.floor(iWeight[i]/max*100);
+        var eHeight = Math.floor(eWeight[i]/max*100);
+        $("#i"+years[i]).attr('height', iHeight).attr('y', 100-iHeight);
+        $("#e"+years[i]).attr('height', eHeight).attr('y', 100-iHeight-eHeight);
+    }
+}
 function drawBarGraph()
 {
+    drawYearBarGraph();
     if (selectedState) {
         // calculate national data as an extra run
         barGraphData(true);
@@ -1068,10 +1105,20 @@ function addDot(box, i, extra, className) {
         </table>
     </div>
     <svg id='arcGraph'>
-        <text x="1257" y="125" class="slider">2012</text>
+        <text x="1253" y="125" class="slider">2012</text>
         <text x="1200" y="125" class="slider">2007</text>
-        <text x="1142" y="125" class="slider">2002</text>
-        <text x="1088" y="125" class="slider">1997</text>
+        <text x="1148" y="125" class="slider">2002</text>
+        <text x="1092" y="125" class="slider">1997</text>
+        <g id="yearChart" transform="translate(1095,0)">
+            <rect width="29" height="50" class="import" x="0" y="50" id="i1997"></rect>
+            <rect width="29" height="50" class="export" x="0" y="0" id="e1997"></rect>
+            <rect width="29" height="25" class="import" x="50" y="75" id="i2002"></rect>
+            <rect width="29" height="25" class="export" x="50" y="50" id="e2002"></rect>
+            <rect width="29" height="25" class="import" x="100" y="75" id="i2007"></rect>
+            <rect width="29" height="25" class="export" x="100" y="50" id="e2007"></rect>
+            <rect width="29" height="25" class="import" x="150" y="75" id="i2012"></rect>
+            <rect width="29" height="25" class="export" x="150" y="50" id="e2012"></rect>
+        </g>
         <g class='gray-arc gray-arc2'></g>
         <g class='gray-arc' id="selectedArc"></g>
     </svg>
