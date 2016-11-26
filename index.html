@@ -571,6 +571,29 @@ function drawBarGraph()
         Highcharts.setOptions({
             lang: {
                 thousandsSep: ','
+            },
+            chart: {
+                style: {
+                    fontFamily: 'Roboto'
+                }
+            },
+            xAxis: {
+                lineColor: '#E1E4E7',
+                tickColor: '#E1E4E7',
+                labels: {
+                    style: {
+                        color: '#5F6872',
+                    }
+                }
+            },
+            yAxis: {
+                lineColor: '#E1E4E7',
+                gridLineColor: '#E1E4E7',
+                labels: {
+                    style: {
+                        color: '#A0A5AF',
+                    }
+                }
             }
         });
         foodChart = Highcharts.chart('foodBar', {
@@ -726,13 +749,13 @@ function drawBarGraph()
 
 
                 {name: 'Water', data: [null, null, transID['T07']], stack: 'import', color: '#ACB9C3'},
-                {name: 'Water', data: [null, null, transED['T07']], stack: 'export', color: '#DEE3E7'},
-                {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import', color: '#B5C0C8'},
-                {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export', color: '#C5E0F2'},
-                {name: 'Great Lakes', data: [null, null, transID['T09']], stack: 'import', color: '#597386'},
-                {name: 'Great Lakes', data: [null, null, transED['T09']], stack: 'export', color: '#B1D5EE'},
-                {name: 'Deep Sea', data: [null, null, transID['T10']], stack: 'import', color: '#305068'},
-                {name: 'Deep Sea', data: [null, null, transED['T10']], stack: 'export', color: '#9ECBEA'},
+                {name: 'Water', data: [null, null, transED['T07']], stack: 'export', color: '#ECF5FB'},
+                {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import', color: '#E1E6E9'},
+                {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export', color: '#D8EAF7'},
+                {name: 'Great Lakes', data: [null, null, transID['T09']], stack: 'import', color: '#B5C0C8'},
+                {name: 'Great Lakes', data: [null, null, transED['T09']], stack: 'export', color: '#C5E0F2'},
+                {name: 'Deep Sea', data: [null, null, transID['T10']], stack: 'import', color: '#597386'},
+                {name: 'Deep Sea', data: [null, null, transED['T10']], stack: 'export', color: '#B1D5EE'},
                 {name: 'Multiple Waterways', data: [null, null, transID['T101']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, null, transDataMean['water']],
                     color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
@@ -741,6 +764,7 @@ function drawBarGraph()
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, null, transDataMean['water']],
                     color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
+
 
 
                 {name: 'Air (includes truck & air)', data: [null, null, null, transID['T11']], stack: 'import', color: '#305068'}, {

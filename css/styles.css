@@ -321,7 +321,7 @@ g.gray-arc .export-line.color {
 }
 
 #map h2, #foodClassBar h2, #transportationBar h2 {
-    font-family: "Roboto", sans-serif;
+    font-family: "Roboto Condensed", sans-serif;
     font-size: 20px;
     font-weight: bold;
     color: #152740;
