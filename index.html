@@ -975,6 +975,8 @@ function buildStateTable(state) {
     }
     var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY s');
     var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY t');
+    console.log(data1);
+    console.log(data2);
     var sStateSum = {};
     Object.keys(statesAlpha).forEach(function(key) {
         sStateSum[key] = {'e': 0, 'i': 0}
@@ -982,12 +984,12 @@ function buildStateTable(state) {
 
     for (var i = 0; i < data1.length; i++) {
         if (data1[i].s) {
-            sStateSum[data1[i].s]['e'] = data1[i]['w']
+            sStateSum[data1[i].s]['i'] = data1[i]['w']
         }
     }
     for (i = 0; i < data2.length; i++) {
         if (data2[i].t) {
-            sStateSum[data2[i].t]['i'] = data2[i]['w']
+            sStateSum[data2[i].t]['e'] = data2[i]['w']
         }
     }
     var stateRankIa = [];
@@ -1002,42 +1004,60 @@ function buildStateTable(state) {
     div.find('.name').text(stateAbbr[state]);
     var table = $('#sameState');
     table.empty();
+    var temp1 = sStateSum[state]['i'] / stateSumNorm[dotsIndex][4];
+    temp1 = Math.round(temp1*1000)/1000;
+    var temp2 = sStateSum[state]['e'] / stateSumNorm[dotsIndex][4];
+    temp2 = Math.round(temp2*1000)/1000;
     table.append(buildStateRow(state, state, [
-            [(sStateSum[state]['i'] / stateSumNorm[dotsIndex][4]).toPrecision(3), 'importDot'],
-            [(stateSum[state]['e'] / stateSumNorm[dotsIndex][4]).toPrecision(3), 'exportDot']
+            [temp1.toPrecision(3).substr(0,5), 'importDot'],
+            [temp2.toPrecision(3).substr(0,5), 'exportDot']
     ]));
     table = $('#importState');
     table.empty();
+    var graphed = false;
     for (i = 0; i < stateRankIa.length; i++) {
         if (stateRankIa[i][1] == state || sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4] < 0.001) {
             continue;
         }
-        var temp1 = (sStateSum[stateRankIa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
+        graphed = true;
+        temp1 = (sStateSum[stateRankIa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
         temp1 = Math.round(temp1*1000)/1000;
-        var temp2 = (sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
+        temp2 = (sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
         temp2 = Math.round(temp2*1000)/1000;
 
-        table.append(buildStateRow(state, stateRankIa[i][1], [
+        table.append(buildStateRow(stateRankIa[i][1], state, [
             [temp2.toPrecision(3).substr(0,5), 'importDot'],
             [temp1.toPrecision(3).substr(0,5), 'exportDot']
         ]));
     }
+    if (!graphed) {
+        table.parents('div.table').hide();
+    } else {
+        table.parents('div.table').show();
+    }
 
     table = $('#exportState');
     table.empty();
+    graphed = false;
     for (i = 0; i < stateRankEa.length; i++) {
         if (stateRankEa[i][1] == state || sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4] < 0.001) {
             continue;
         }
+        graphed = true;
         temp1 = (sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
         temp1 = Math.round(temp1*1000)/1000;
         temp2 = (sStateSum[stateRankEa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
         temp2 = Math.round(temp2*1000)/1000;
 
-        table.append(buildStateRow(stateRankEa[i][1], state, [
+        table.append(buildStateRow(state, stateRankEa[i][1], [
             [temp2.toPrecision(3).substr(0,5), 'importDot'],
             [temp1.toPrecision(3).substr(0,5), 'exportDot']
         ]));
+    }
+    if (!graphed) {
+        table.parents('div.table').hide();
+    } else {
+        table.parents('div.table').show();
     }
     div.show();
 }
@@ -1082,7 +1102,13 @@ function stateHoverIn() {
     var state = $(this).data('state');
     $('#'+state+'StateBox').addClass('hovered');
     item.css('left', states[state]*25-25-50);
-    $('#hoverImport').text((stateSum[state]['i'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
+    var im = stateSum[state]['i'] / stateSumNorm[dotsIndex][4];
+    if (im > 100) {
+        im = im.toLocaleString('en-US', {'maximumFractionDigits': 0});
+    } else {
+        im = im.toPrecision(3);
+    }
+    $('#hoverImport').text(im);
     $('#hoverExport').text((stateSum[state]['e'] / stateSumNorm[dotsIndex][4]).toPrecision(3));
     $('#hoverImportRank').text(stateRankI[state]);
     $('#hoverExportRank').text(stateRankE[state]);

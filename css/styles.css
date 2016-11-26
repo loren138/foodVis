@@ -130,7 +130,7 @@ svg rect.mean {
 }
 #selectedState div.table div {
     width: 100%;
-    height: 100px;
+    max-height: 100px;
     overflow-y: auto;
 }
 #selectedState .name {
@@ -236,7 +236,7 @@ g.gray-arc .export-line.color {
 }
 #arcGraph {
     width:1280px;
-    height:540px;
+    height:560px;
     /*border: 1px solid #ddd;*/
 }
 #arcGraph g.state {
