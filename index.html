@@ -574,7 +574,10 @@ function drawBarGraph()
             }
         });
         foodChart = Highcharts.chart('foodBar', {
-            chart: {type: 'column'},
+            chart: {
+                type: 'column',
+                height: 340
+            },
             title: {text: ''},
             legend: {
                 enabled: false
@@ -600,6 +603,9 @@ function drawBarGraph()
             },
 
             tooltip: {
+                backgroundColor: '#152740',
+                borderRadius: 0,
+                style: { 'color': '#fff', 'fontWeight': 'normal', 'lineHeight': '18px'},
                 headerFormat: '<b>{point.key}</b><br>',
                 pointFormat: '{series.name}: {point.y:,.1f}<br>',
                 shared: true,
@@ -608,7 +614,8 @@ function drawBarGraph()
 
             plotOptions: {
                 series: {
-                    borderWidth: 0
+                    borderWidth: 1,
+                    pointWidth: 8
                 }
             },
 
@@ -621,7 +628,7 @@ function drawBarGraph()
                 type: 'errorbar', visible: false,
                 data: foodDataMean,
                 color: '#ed5950',
-                whiskerLength: '95%',
+                whiskerLength: 8,
                 whiskerWidth: '1'
             }, {
                 name: 'Export',
@@ -632,7 +639,7 @@ function drawBarGraph()
                 type: 'errorbar', visible: false, 
                 data: foodDataMean,
                 color: '#ed5950',
-                whiskerLength: '95%',
+                whiskerLength: 8,
                 whiskerWidth: '1'
              }]
         });
@@ -640,7 +647,10 @@ function drawBarGraph()
         //foodChart.legend.group.hide();
         //foodChart.legend.box.hide();
         transportChart = Highcharts.chart('transportBar', {
-            chart: {type: 'column'},
+            chart: {
+                type: 'column',
+                height: 300
+            },
             title: {text: ''},
             credits: {
                 enabled: false
@@ -659,6 +669,9 @@ function drawBarGraph()
             },
 
             tooltip: {
+                backgroundColor: '#152740',
+                borderRadius: 0,
+                style: { 'color': '#fff', 'fontWeight': 'normal', 'lineHeight': '18px'},
                 formatter: function () {
                     var cat = '';
                     if (this.series.options.stack) {
@@ -669,7 +682,7 @@ function drawBarGraph()
                     if (this.point.stackTotal) {
                         tip += '<br/>Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 0});
                     }
-                    return tip;
+                    return '<div class="tooltip-text">' + tip + '</div>';
                 }
             },
             legend: {
@@ -680,70 +693,79 @@ function drawBarGraph()
                     stacking: 'normal'
                 },
                 series: {
-                    borderWidth: 0
+                    borderWidth: 1,
+                    pointWidth: 14
                 }
             },
 
             series: [
-                {name: 'Truck', data: [transID['T03']], stack: 'import'},
-                {name: 'Truck', data: [transED['T03']], stack: 'export'},
-                {name: 'For-hire Truck', data: [transID['T04']], stack: 'import'},
-                {name: 'For-hire Truck', data: [transED['T04']], stack: 'export'},
-                {name: 'Private Truck', data: [transID['T05']], stack: 'import'}, {
+                {name: 'Truck', data: [transID['T03']], stack: 'import', color: '#B5C0C8'},
+                {name: 'Truck', data: [transED['T03']], stack: 'export', color: '#C5E0F2'},
+                {name: 'For-hire Truck', data: [transID['T04']], stack: 'import', color: '#597386'},
+                {name: 'For-hire Truck', data: [transED['T04']], stack: 'export', color: '#B1D5EE'},
+                {name: 'Private Truck', data: [transID['T05']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [transDataMean['truck']],
                     color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Private Truck', data: [transED['T05']], stack: 'export'}, {
+                {name: 'Private Truck', data: [transED['T05']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [transDataMean['truck']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
-                {name: 'Rail', data: [null, transID['T06']], stack: 'import'}, {
+
+
+                {name: 'Rail', data: [null, transID['T06']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, transDataMean['rail']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Rail', data: [null, transED['T06']], stack: 'export'}, {
+                {name: 'Rail', data: [null, transED['T06']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, transDataMean['rail']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
-                {name: 'Water', data: [null, null, transID['T07']], stack: 'import'},
-                {name: 'Water', data: [null, null, transED['T07']], stack: 'export'},
-                {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import'},
-                {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export'},
-                {name: 'Great Lakes', data: [null, null, transID['T09']], stack: 'import'},
-                {name: 'Great Lakes', data: [null, null, transED['T09']], stack: 'export'},
-                {name: 'Deep Sea', data: [null, null, transID['T10']], stack: 'import'},
-                {name: 'Deep Sea', data: [null, null, transED['T10']], stack: 'export'},
-                {name: 'Multiple Waterways', data: [null, null, transID['T101']], stack: 'import'}, {
+
+
+                {name: 'Water', data: [null, null, transID['T07']], stack: 'import', color: '#ACB9C3'},
+                {name: 'Water', data: [null, null, transED['T07']], stack: 'export', color: '#DEE3E7'},
+                {name: 'Inland Water', data: [null, null, transID['T08']], stack: 'import', color: '#B5C0C8'},
+                {name: 'Inland Water', data: [null, null, transED['T08']], stack: 'export', color: '#C5E0F2'},
+                {name: 'Great Lakes', data: [null, null, transID['T09']], stack: 'import', color: '#597386'},
+                {name: 'Great Lakes', data: [null, null, transED['T09']], stack: 'export', color: '#B1D5EE'},
+                {name: 'Deep Sea', data: [null, null, transID['T10']], stack: 'import', color: '#305068'},
+                {name: 'Deep Sea', data: [null, null, transED['T10']], stack: 'export', color: '#9ECBEA'},
+                {name: 'Multiple Waterways', data: [null, null, transID['T101']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, null, transDataMean['water']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Multiple Waterways', data: [null, null, transED['T101']], stack: 'export'}, {
+                {name: 'Multiple Waterways', data: [null, null, transED['T101']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, null, transDataMean['water']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
-                {name: 'Air (includes truck & air)', data: [null, null, null, transID['T11']], stack: 'import'}, {
+
+
+                {name: 'Air (includes truck & air)', data: [null, null, null, transID['T11']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, null, null, transDataMean['air']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Air (includes truck & air)', data: [null, null, null, transED['T11']], stack: 'export'}, {
+                {name: 'Air (includes truck & air)', data: [null, null, null, transED['T11']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, null, null, transDataMean['air']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
-                {name: 'Parcel', data: [null, null, null, null, transID['T14']], stack: 'import'}, {
+
+                {name: 'Parcel', data: [null, null, null, null, transID['T14']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, null, null, null, transDataMean['parcel']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Parcel', data: [null, null, null, null, transED['T14']], stack: 'export'}, {
+                {name: 'Parcel', data: [null, null, null, null, transED['T14']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, null, null, null, transDataMean['parcel']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 },
-                {name: 'Undefined', data: [null, null, null, null, null, transID['T00']], stack: 'import'}, {
+
+                {name: 'Undefined', data: [null, null, null, null, null, transID['T00']], stack: 'import', color: '#305068'}, {
                     name: 'Import Mean', type: 'errorbar', visible: false, data: [null, null, null, null, null, transDataMean['undefined']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'import'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'import'
                 },
-                {name: 'Undefined', data: [null, null, null, null, null, transED['T00']], stack: 'export'}, {
+                {name: 'Undefined', data: [null, null, null, null, null, transED['T00']], stack: 'export', color: '#9ECBEA'}, {
                     name: 'Export Mean', type: 'errorbar', visible: false, data: [null, null, null, null, null, transDataMean['undefined']],
-                    color: '#ed5950', whiskerLength: '95%', whiskerWidth: '1', stack: 'export'
+                    color: '#ed5950', whiskerLength: 14, whiskerWidth: '1', stack: 'export'
                 }
             ]
         });
