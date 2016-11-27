@@ -112,7 +112,7 @@ svg rect.mean {
     position: absolute;
     top: 0;
     left: 0;
-    width: 220px;
+    width: 257px;
     background-color: #ffffff;
     box-shadow: 0 1px 3px 0 rgba(31, 56, 76, 0.2);
     text-align: left;
@@ -121,6 +121,9 @@ svg rect.mean {
     font-size: 12px;
     color: #152740;
     padding: 15px;
+}
+#selectedState.IE {
+    width: 180px;
 }
 #selectedState div.table {
     width: 100%;
@@ -144,10 +147,13 @@ svg rect.mean {
     padding: 4px 0;
 }
 #selectedState td.state {
-    width: 62px;
+    width: 54px;
+}
+#selectedState.IE td.state {
+    width: 58px;
 }
 #selectedState td.smallW {
-    width: 45px;
+    width: 46px;
 }
 #selectedState .key {
     font-size: 10px;
@@ -211,13 +217,28 @@ g.gray-arc path {
 g.gray-arc path.color {
     opacity: 0.8;
 }
-
+.f00, .t00 {fill: #C6CCD3; color: #C6CCD3; font-weight: bold; }
+.f01 {fill: #5E4FA2; color: #5E4FA2; font-weight: bold; }
+.f02, .t01 {fill: #3288BD; color: #3288BD; font-weight: bold; }
+.t02 {fill: #99D594; color: #99D594; font-weight: bold; }
+.f03 {fill: #66C2A5; color: #66C2A5; font-weight: bold; }
+.f04 {fill: #ABDDA4; color: #ABDDA4; font-weight: bold; }
+.f05 {fill: #E6F598; color: #E6F598; font-weight: bold; }
+.f06, .t03 {fill: #FEE08B; color: #FEE08B; font-weight: bold; }
+.f07 {fill: #FDAE61; color: #FDAE61; font-weight: bold; }
+.f08, .t04 {fill: #FC8D59; color: #FC8D59; font-weight: bold; }
+.f09, .t05 {fill: #D53E4F; color: #D53E4F; font-weight: bold; }
 .import {
     fill: #305068;
 }
+
 .importDot {
     font-weight: bold;
     color: #305068;
+}
+.tableDot {
+    font-size: 16px;
+    line-height: 0.6em;
 }
 g.gray-arc .import-line.color {
     fill: none;

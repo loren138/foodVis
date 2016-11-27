@@ -383,10 +383,19 @@ function setUp() {
 
     $('#filterFood, #filterTrans').change(redraw);
     $('#viewSelect').change(viewChange);
+    $('#shade').change(shadeChange);
     $('#sortSelect').change(sortStates);
     $('#closeState').click(function() { unselectState(); drawBarGraph(); });
     $('#stateSelect').change(stateChange);
     $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
+}
+function shadeChange() {
+    var shade = $(this).val();
+    $('#keyFood, #keyIE').hide();
+    $('#key'+shade).show();
+    if (selectedState) {
+        buildStateTable(selectedState);
+    }
 }
 function viewChange() {
     dotsIndex = $('#viewSelect').val();
@@ -890,6 +899,10 @@ function unselectState() {
             // This function credit JeffB: http://stackoverflow.com/a/2686098/3854385
             // 2 decimal places => 100, 3 => 1000, etc
             decPlaces = Math.pow(10,decPlaces);
+            if (number == 0) {
+                return 0;
+            }
+            number = Math.round(number*decPlaces)/decPlaces;
 
             // Enumerate number abbreviations
             var abbrev = [ "k", "m", "b", "t" ];
@@ -918,6 +931,10 @@ function unselectState() {
                     // We are done... stop
                     break;
                 }
+            }
+
+            if (number == 0) {
+                return "<0.1";
             }
 
             return number;
@@ -1012,8 +1029,8 @@ function buildStateTable(state) {
     }
     var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY s');
     var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY t');
-    console.log(data1);
-    console.log(data2);
+    var fo1, fo2;
+    var shade = $('#shade').val();
     var sStateSum = {};
     Object.keys(statesAlpha).forEach(function(key) {
         sStateSum[key] = {'e': 0, 'i': 0}
@@ -1038,34 +1055,74 @@ function buildStateTable(state) {
     stateRankIa.sort(function (a, b) { return b[0]-a[0]; });
     stateRankEa.sort(function (a, b) { return b[0]-a[0]; });
     var div = $('#selectedState');
+    var cols = 4;
+    if (shade == 'IE') {
+        div.addClass('IE');
+        cols = 2;
+    } else {
+        div.removeClass('IE');
+    }
     div.find('.name').text(stateAbbr[state]);
     var table = $('#sameState');
     table.empty();
-    var temp1 = sStateSum[state]['i'] / stateSumNorm[dotsIndex][4];
-    temp1 = Math.round(temp1*1000)/1000;
-    var temp2 = sStateSum[state]['e'] / stateSumNorm[dotsIndex][4];
-    temp2 = Math.round(temp2*1000)/1000;
-    table.append(buildStateRow(state, state, [
-            [temp1.toPrecision(3).substr(0,5), 'importDot'],
-            [temp2.toPrecision(3).substr(0,5), 'exportDot']
-    ]));
+    if (shade == 'Food') {
+        fo1 = alasql('SELECT fo, SUM(' + dotsIndex + ') AS w FROM stateFlow' + graphYear + ' ' + whereE + ' AND t = \''+state+'\' GROUP BY fo');
+        columns = [];
+        for (j = 0; j < fo1.length; j++) {
+            if (fo1[j].w / stateSumNorm[dotsIndex][4] < 0.0001) {
+                continue;
+            }
+            columns.push([formatTableNumber(fo1[j].w / stateSumNorm[dotsIndex][4]), fo1[j].fo.toLowerCase()])
+        }
+        columns.sort(function(a,b) {
+            if (a[1] == 'f00') {
+                return 10;
+            } else if (b[1] == 'f00') {
+                return -10;
+            }
+            return parseInt(a[1].substr(1)) - parseInt(b[1].substr(1));
+        });
+        table.append(buildStateRow(state, state, columns, cols));
+    } else {
+        table.append(buildStateRow(state, state, [
+            [formatTableNumber(sStateSum[state]['i'] / stateSumNorm[dotsIndex][4]), 'importDot'],
+            [formatTableNumber(sStateSum[state]['e'] / stateSumNorm[dotsIndex][4]), 'exportDot']
+        ], cols));
+    }
     table = $('#importState');
     table.empty();
     var graphed = false;
+    var columns, j;
     for (i = 0; i < stateRankIa.length; i++) {
-        if (stateRankIa[i][1] == state || sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4] < 0.001) {
+        if (stateRankIa[i][1] == state || sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4] < 0.0001) {
             continue;
         }
         graphed = true;
-        temp1 = (sStateSum[stateRankIa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
-        temp1 = Math.round(temp1*1000)/1000;
-        temp2 = (sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
-        temp2 = Math.round(temp2*1000)/1000;
 
-        table.append(buildStateRow(stateRankIa[i][1], state, [
-            [temp2.toPrecision(3).substr(0,5), 'importDot'],
-            [temp1.toPrecision(3).substr(0,5), 'exportDot']
-        ]));
+        if (shade == 'Food') {
+            fo1 = alasql('SELECT fo, SUM(' + dotsIndex + ') AS w FROM stateFlow' + graphYear + ' ' + whereI + ' AND s = \''+stateRankIa[i][1]+'\' GROUP BY fo');
+            columns = [];
+            for (j = 0; j < fo1.length; j++) {
+                if (fo1[j].w / stateSumNorm[dotsIndex][4] < 0.0001) {
+                    continue;
+                }
+                columns.push([formatTableNumber(fo1[j].w / stateSumNorm[dotsIndex][4]), fo1[j].fo.toLowerCase()])
+            }
+            columns.sort(function(a,b) {
+                if (a[1] == 'f00') {
+                    return 10;
+                } else if (b[1] == 'f00') {
+                    return -10;
+                }
+                return parseInt(a[1].substr(1)) - parseInt(b[1].substr(1));
+            });
+            table.append(buildStateRow(stateRankIa[i][1], state, columns, cols));
+        } else {
+            table.append(buildStateRow(stateRankIa[i][1], state, [
+                [formatTableNumber(sStateSum[stateRankIa[i][1]]['i'] / stateSumNorm[dotsIndex][4]), 'importDot'],
+                [formatTableNumber(sStateSum[stateRankIa[i][1]]['e'] / stateSumNorm[dotsIndex][4]), 'exportDot']
+            ], cols));
+        }
     }
     if (!graphed) {
         table.parents('div.table').hide();
@@ -1077,19 +1134,35 @@ function buildStateTable(state) {
     table.empty();
     graphed = false;
     for (i = 0; i < stateRankEa.length; i++) {
-        if (stateRankEa[i][1] == state || sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4] < 0.001) {
+        if (stateRankEa[i][1] == state || sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4] < 0.0001) {
             continue;
         }
         graphed = true;
-        temp1 = (sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4]);
-        temp1 = Math.round(temp1*1000)/1000;
-        temp2 = (sStateSum[stateRankEa[i][1]]['i'] / stateSumNorm[dotsIndex][4]);
-        temp2 = Math.round(temp2*1000)/1000;
 
-        table.append(buildStateRow(state, stateRankEa[i][1], [
-            [temp2.toPrecision(3).substr(0,5), 'importDot'],
-            [temp1.toPrecision(3).substr(0,5), 'exportDot']
-        ]));
+        if (shade == 'Food') {
+            fo1 = alasql('SELECT fo, SUM(' + dotsIndex + ') AS w FROM stateFlow' + graphYear + ' ' + whereE + ' AND t = \''+stateRankEa[i][1]+'\' GROUP BY fo');
+            columns = [];
+            for (j = 0; j < fo1.length; j++) {
+                if (fo1[j].w / stateSumNorm[dotsIndex][4] < 0.0001) {
+                    continue;
+                }
+                columns.push([formatTableNumber(fo1[j].w / stateSumNorm[dotsIndex][4]), fo1[j].fo.toLowerCase()])
+            }
+            columns.sort(function(a,b) {
+                if (a[1] == 'f00') {
+                    return 10;
+                } else if (b[1] == 'f00') {
+                    return -10;
+                }
+                return parseInt(a[1].substr(1)) - parseInt(b[1].substr(1));
+            });
+            table.append(buildStateRow(stateRankIa[i][1], state, columns, cols));
+        } else {
+            table.append(buildStateRow(state, stateRankEa[i][1], [
+                [formatTableNumber(sStateSum[stateRankEa[i][1]]['i'] / stateSumNorm[dotsIndex][4]), 'importDot'],
+                [formatTableNumber(sStateSum[stateRankEa[i][1]]['e'] / stateSumNorm[dotsIndex][4]), 'exportDot']
+            ], cols));
+        }
     }
     if (!graphed) {
         table.parents('div.table').hide();
@@ -1098,6 +1171,17 @@ function buildStateTable(state) {
     }
     div.show();
 }
+function formatTableNumber(number) {
+    if (number == 0) {
+        return '0';
+    }
+    number = Math.round(number*1000)/1000;
+    if (number < 0.01) {
+        return '<0.01';
+    } else {
+        return number.toPrecision(3).substr(0,5);
+    }
+}
 function buildSectionRow() {
     return $("<tr>").append(
             $("<td>").attr('colspan', 6).append(
@@ -1105,29 +1189,36 @@ function buildSectionRow() {
             )
     )
 }
-function buildStateRow(state1, state2, numbers) {
-    var row = $("<tr>").append(
+function buildStateRow(state1, state2, numbers, cols) {
+    var row = [$("<tr>").append(
             $("<td>").attr('class', 'state').html(state1+"&rarr;"+state2)
-    );
+    )];
     for (var i = 0; i < numbers.length; i++) {
         var classes = 'number';
-        if (i % 5 != 4) {
+        if (i % cols != cols - 1) {
             classes = 'number smallW';
         }
-        row.append(
+        row[row.length - 1].append(
             $("<td>").attr('class', classes).append(
-                    $("<span>").attr('class', numbers[i][1]).html('&bull;')
+                    $("<span>").attr('class', numbers[i][1]+' tableDot').html('&#9679;')
             ).append(" "+numbers[i][0])
         );
-    }
-    for (i = numbers.length % 5; i < 5; i++) {
-        classes = 'number';
-        if (i % 5 != 4) {
-            classes = 'number smallW';
+        if (i % 4 == 3 && i != numbers.length - 1) {
+            row.push($("<tr>").append(
+                    $("<td>").attr('class', 'state').html("&nbsp;")
+            ));
         }
-        row.append(
-                $("<td>").attr('class', classes).html('&nbsp;')
-        );
+    }
+    if (numbers.length % cols > 0) {
+        for (i = numbers.length % cols; i < cols; i++) {
+            classes = 'number';
+            if (i % cols != cols - 1) {
+                classes = 'number smallW';
+            }
+            row[row.length - 1].append(
+                    $("<td>").attr('class', classes).html('&nbsp;')
+            );
+        }
     }
     return row;
 }
@@ -1215,11 +1306,11 @@ function addDot(box, i, extra, className) {
             </select>
         </span>
         <span class="shade-by">
-            <label class="label">Shade by</label>
+            <label class="label">Table Show</label>
             <select class="selectbox selectbox-mid" id="shade">
-                <option value="ie" selected>Import and Export</option>
-                <option value="food">Food Types</option>
-                <option value="trans">Transportation Modes</option>
+                <option value="IE" selected>Import and Export</option>
+                <option value="Food">Food Types</option>
+                <!--<option value="Trans">Transportation Modes</option>-->
             </select>
         </span>
     </div>
@@ -1302,7 +1393,7 @@ function addDot(box, i, extra, className) {
         <g class='gray-arc gray-arc2'></g>
         <g class='gray-arc' id="selectedArc"></g>
     </svg>
-    <div class="key">
+    <div class="key" id="keyIE">
         <svg width="230" height="15" class="sKey">
             <circle cx="3" cy="7" r="2.5" class="stateCircle"></circle>
             <circle cx="11" cy="7" r="4.5" class="stateCircle"></circle>
@@ -1313,6 +1404,101 @@ function addDot(box, i, extra, className) {
 
             <rect x="180" y="2" width="11" height="11" class="keyBox export"></rect>
             <text x="198" y="11" class="keyText">Export</text>
+        </svg>
+    </div>
+    <div class="key" id="keyFood" style="display:none;">
+        <svg width="1120" height="50" class="sKey">
+            <circle cx="3" cy="7" r="2.5" class="stateCircle"></circle>
+            <circle cx="11" cy="7" r="4.5" class="stateCircle"></circle>
+            <circle cx="23" cy="7" r="6.5" class="stateCircle"></circle>
+            <text x="35" y="11" class="keyText viewSelectText">Shipment Weight</text>
+            <g transform="translate(120,0)">
+            <g transform="translate(0,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                <text x="18" y="11" class="keyText">Import</text>
+            </g>
+
+            <g transform="translate(0,20)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox export"></rect>
+                <text x="18" y="11" class="keyText">Export</text>
+            </g>
+            <g transform="translate(100,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f01"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Animals and Fish</tspan>
+                </text>
+            </g>
+            <g transform="translate(100,20)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f02"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Cereal Grains</tspan>
+                </text>
+            </g>
+            <g transform="translate(200,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f03"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Agricultural</tspan>
+                    <tspan x="18" dy="1.2em">Products</tspan>
+                </text>
+            </g>
+            <g transform="translate(300,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f04"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Animal Feed,</tspan>
+                    <tspan x="18" dy="1.2em">Eggs, Honey, and</tspan>
+                    <tspan x="18" dy="1.2em">Other products of</tspan>
+                    <tspan x="18" dy="1.2em">Animal Origin</tspan>
+                </text>
+            </g>
+            <g transform="translate(400,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f05"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Meat, Poultry,</tspan>
+                    <tspan x="18" dy="1.2em">Fish, Seafood,</tspan>
+                    <tspan x="18" dy="1.2em">and their</tspan>
+                    <tspan x="18" dy="1.2em">preparations</tspan>
+                </text>
+            </g>
+            <g transform="translate(500,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f06"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Milled Grain</tspan>
+                    <tspan x="18" dy="1.2em">Products and </tspan>
+                    <tspan x="18" dy="1.2em">Preparations, and</tspan>
+                    <tspan x="18" dy="1.2em">Bakery Products</tspan>
+                </text>
+            </g>
+            <g transform="translate(600,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f07"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Other Prepared</tspan>
+                    <tspan x="18" dy="1.2em">Foodstuffs, and</tspan>
+                    <tspan x="18" dy="1.2em">Fats and Oil</tspan>
+                </text>
+            </g>
+            <g transform="translate(700,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f08"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Alcoholic</tspan>
+                    <tspan x="18" dy="1.2em">Beverages and</tspan>
+                    <tspan x="18" dy="1.2em">Denatured</tspan>
+                    <tspan x="18" dy="1.2em">Alcohol</tspan>
+                </text>
+            </g>
+            <g transform="translate(800,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f09"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Tobacco</tspan>
+                    <tspan x="18" dy="1.2em">Products</tspan>
+                </text>
+            </g>
+            <g transform="translate(900,0)">
+                <rect x="0" y="2" width="11" height="11" class="keyBox f00"></rect>
+                <text x="18" y="0" class="keyText">
+                    <tspan x="18" dy="1.2em">Undefined</tspan>
+                </text>
+            </g>
+            </g>
         </svg>
     </div>
 </div>
