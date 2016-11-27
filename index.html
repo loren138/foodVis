@@ -553,7 +553,7 @@ function drawYearBarGraph()
         var eHeight = Math.floor(eWeight[i]/max*90);
         $("#i"+years[i]).attr('height', iHeight).attr('y', 100-iHeight);
         $("#e"+years[i]).attr('height', eHeight).attr('y', 100-iHeight-eHeight);
-        $("#t"+years[i]).attr('y', 100-iHeight-eHeight-2).text(abbrNum((iWeight[i]+eWeight[i])*1000000, 1));
+        $("#t"+years[i]).attr('y', 100-iHeight-eHeight-2).text(abbrNum((iWeight[i]+eWeight[i])/stateSumNorm[dotsIndex][4], 1));
     }
 }
 function drawBarGraph()
