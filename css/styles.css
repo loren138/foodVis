@@ -83,6 +83,7 @@ svg rect.mean {
     width: 1280px;
     margin: 20px auto 0;
     min-height: 325px;
+    transform: scale(0.98);
 }
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -244,7 +245,7 @@ g.gray-arc path {
     stroke: rgb(198, 204, 211);
 }
 g.gray-arc path.color {
-    opacity: 0.8;
+    opacity: 0.7;
 }
 .f00, .t00 {fill: #C6CCD3; color: #C6CCD3; font-weight: bold; }
 .f01 {fill: #5E4FA2; color: #5E4FA2; font-weight: bold; }
@@ -285,7 +286,7 @@ g.gray-arc .export-line.color {
     stroke: #9ecbea;
 }
 #arcGraph {
-    width:1280px;
+    width: 1280px;
     height:560px;
     /*border: 1px solid #ddd;*/
 }
@@ -309,6 +310,11 @@ g.gray-arc .export-line.color {
 #arcGraph g.state circle.stateCircle, svg.sKey circle.stateCircle,
 #arcGraph g.state circle.stateCircleSelf {
     fill: #152740;
+    /* opacity: 0.7; */
+}
+#arcGraph g.state circle.stateCircleSelf{
+    fill: #305068;
+    opacity:0.7;
 }
 #arcGraph g.state rect {
     fill: #152740;
@@ -357,8 +363,9 @@ g.gray-arc .export-line.color {
 #arcsAndDots {
     text-align: center;
     position: relative;
-    width:1280px;
+    width: 1280px;
     margin: 0 auto;
+    transform: scale(0.98);
 }
 
 #map, #foodClassBar, #transportationBar {
@@ -377,7 +384,8 @@ g.gray-arc .export-line.color {
     left: 459px;
 }
 #transportationBar {
-    left: 888px;
+    left: auto;
+    right: 0;
 }
 
 #map h2, #foodClassBar h2, #transportationBar h2 {
