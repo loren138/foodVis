@@ -65,6 +65,7 @@ body{
     font-stretch: normal;
     line-height: 1.2;
     color: #A0A5AF;
+    margin-top: 10px;
 }
 .key.left {
     text-align: left;
