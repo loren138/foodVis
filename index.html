@@ -1318,11 +1318,14 @@ function addDot(box, i, extra, className) {
 </div>
 <div style="height:10px;">&nbsp;</div>
 <div id="arcsAndDots">
-    <div id="slider"></div>
+    <div class="year-slider">
+        <div id="slider"></div>
+        <div class="ui-slider-bg"></div>
+    </div>
     <div id="selectedState" style="display:none;">
         <span class="name">Georgia</span><br>
         <span class="key keyUnits">In Billions of Pounds</span>
-        <img src="x.png" style="position: absolute; top: 10px;right:10px; cursor: pointer" alt="Close" id="closeState">
+        <img src="x.png" style="position: absolute; width: 16px; height: 16px; top: 12px;right:12px; cursor: pointer" alt="Close" id="closeState">
         <table><tbody id="sameState">
             <tr>
                 <td class="state">GA&rarr;GA</td>
@@ -1372,23 +1375,23 @@ function addDot(box, i, extra, className) {
         </table>
     </div>
     <svg id='arcGraph'>
-        <text x="1253" y="125" class="slider">2012</text>
-        <text x="1200" y="125" class="slider">2007</text>
-        <text x="1148" y="125" class="slider">2002</text>
-        <text x="1092" y="125" class="slider">1997</text>
-        <g id="yearChart" transform="translate(1095,0)">
-            <text x="15" y="10" id="t1997">1.3m</text>
-            <text x="65" y="10" id="t2002">1.3m</text>
-            <text x="115" y="10" id="t2007">1.3m</text>
-            <text x="165" y="10" id="t2012">1.3m</text>
-            <rect width="29" height="50" class="import" x="0" y="50" id="i1997"></rect>
-            <rect width="29" height="50" class="export" x="0" y="0" id="e1997"></rect>
-            <rect width="29" height="25" class="import" x="50" y="75" id="i2002"></rect>
-            <rect width="29" height="25" class="export" x="50" y="50" id="e2002"></rect>
-            <rect width="29" height="25" class="import" x="100" y="75" id="i2007"></rect>
-            <rect width="29" height="25" class="export" x="100" y="50" id="e2007"></rect>
-            <rect width="29" height="25" class="import" x="150" y="75" id="i2012"></rect>
-            <rect width="29" height="25" class="export" x="150" y="50" id="e2012"></rect>
+        <text x="1248" y="126" class="slider">2012</text>
+        <text x="1200" y="126" class="slider">2007</text>
+        <text x="1148" y="126" class="slider">2002</text>
+        <text x="1096" y="126" class="slider">1997</text>
+        <g id="yearChart" transform="translate(1103,5)">
+            <text x="6" y="10" id="t1997" transform="translate(0,-3)">1.3m</text>
+            <text x="56" y="10" id="t2002" transform="translate(0,-3)">1.3m</text>
+            <text x="106" y="10" id="t2007" transform="translate(0,-3)">1.3m</text>
+            <text x="156" y="10" id="t2012" transform="translate(0,-3)">1.3m</text>
+            <rect width="12" height="50" class="import" x="0" y="50" id="i1997"></rect>
+            <rect width="12" height="50" class="export" x="0" y="0" id="e1997"></rect>
+            <rect width="12" height="25" class="import" x="50" y="75" id="i2002"></rect>
+            <rect width="12" height="25" class="export" x="50" y="50" id="e2002"></rect>
+            <rect width="12" height="25" class="import" x="100" y="75" id="i2007"></rect>
+            <rect width="12" height="25" class="export" x="100" y="50" id="e2007"></rect>
+            <rect width="12" height="25" class="import" x="150" y="75" id="i2012"></rect>
+            <rect width="12" height="25" class="export" x="150" y="50" id="e2012"></rect>
         </g>
         <g class='gray-arc gray-arc2'></g>
         <g class='gray-arc' id="selectedArc"></g>
