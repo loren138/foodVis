@@ -248,6 +248,26 @@ function stateSumCalc() {
 function drawDots() {
     stateSumCalc();
 
+    var max = 0;
+    Object.keys(states).forEach(function(key) {
+        var j = (stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4];
+        if (j > max) {
+            max = j;
+        }
+    });
+    var dot = max / 100;
+    if (dot > 2) {
+        dot = Math.ceil(dot);
+        console.log('1 dot is: ', dot);
+    } else {
+        dot = Math.ceil(dot * 100) / 100;
+        if (dot < 0.01) {
+            dot = 0.01;
+        }
+        console.log('1 dot is: ', dot);
+    }
+
+
     Object.keys(states).forEach(function(key) {
         var size = Math.round(Math.sqrt(
                 (stateSum[key]['i'] + stateSum[key]['e'])/stateSumNorm[dotsIndex][1]
@@ -286,11 +306,11 @@ function drawDots() {
             );
             box = $('#'+key+'DotsBox');
         }
-        var importDots = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][0]);
+        var importDots = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][4]/dot);
         if (importDots < 0) {
             importDots = 0;
         }
-        var exportDots = Math.round(stateSum[key]['e']/stateSumNorm[dotsIndex][0]);
+        var exportDots = Math.round(stateSum[key]['e']/stateSumNorm[dotsIndex][4]/dot);
         //if (importDots + exportDots > 50) {
         //    exportDots = 60 - importDots;
         //}
@@ -305,7 +325,7 @@ function drawDots() {
         for (var i = 0; i < importDots; i++) {
             addDot(box, i, 0, 'import');
         }
-        for (var i = 0; i < exportDots; i++) {
+        for (i = 0; i < exportDots; i++) {
             addDot(box, i, importDots, 'export');
         }
     });
@@ -346,7 +366,6 @@ function colorMap(stateSum) {
         }
         split = max / 6;
     }
-    console.log('s', split);
     if (split > 2) {
         split = Math.round(split);
         $('#mapKey1').text((split * 2).toFixed(0));
