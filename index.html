@@ -387,6 +387,10 @@ function setUp() {
     $('#sortSelect').change(sortStates);
     $('#closeState').click(function() { unselectState(); drawBarGraph(); });
     $('#stateSelect').change(stateChange);
+    $('#mapSVG').find('rect, text').click(function() {
+        var state = $(this).parents('g').find('text').text();
+        selectState(state);
+    });
     $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
 }
 function shadeChange() {
