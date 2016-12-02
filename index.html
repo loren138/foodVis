@@ -306,6 +306,11 @@
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
         <h2><span class="viewSelectText">Shipment Weight</span> by State, <span class="year">2012</span></h2>
         <div class="notes keyUnits">In Billions of Pounds</div>
+        <div id="mapRadios" class="map-radios notes">
+            <input type="radio" name="mapRadio" class="mapRadio" value="i"> <label>Import</label>
+            <input type="radio" name="mapRadio" class="mapRadio" value="e"> <label>Export</label>
+            <input type="radio" name="mapRadio" class="mapRadio" value="ie" checked> <label>Both</label>
+        </div>
         <div id="mapKey" class="key" style="padding: 10px;">
             <svg width="233" height="25">
                 <text class="keyText" x="0" y="23">0</text>
@@ -527,11 +532,6 @@
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">FL</text>
                 </g>
             </svg>
-            <div id="mapRadios" class="notes">
-            <input type="radio" name="mapRadio" class="mapRadio" value="i"> Import
-            <input type="radio" name="mapRadio" class="mapRadio" value="e"> Export
-            <input type="radio" name="mapRadio" class="mapRadio" value="ie" checked> Both
-            </div>
         </div>
     </div>
     <div id="foodClassBar">

@@ -2,6 +2,7 @@
 @import "map.css";
 @import "../js/vendor/selectize/selectize.css";
 @import "../js/vendor/nprogress/nprogress.css";
+/*@import "../js/vendor/icheck/skins/square/blue.css";*/
 
 /*============Global Style==============*/
 html{
@@ -311,7 +312,7 @@ g.gray-arc .export-line.color {
 .arc-graph-container{
     /* width: 1280px; */
     /* height:560px; */
-    transform: translate(1px,0);
+    /* transform: translate(1px,0); */
 }
 .arc-graph-container .state-box{
     width: 100%;
@@ -472,6 +473,14 @@ div.notes {
 #map rect.mapColor5 { fill: #304862; }
 #map rect.mapColor6 { fill: #152740; }
 
+/*=================Map=================*/
+.map-radios{
+    padding-top: 12px;
+    padding-bottom: 5px;
+}
+.map-radios label{
+    margin-right: 12px;
+}
 
 /*====================Tour================*/
 .tour-overlay{

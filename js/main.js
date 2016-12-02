@@ -431,6 +431,13 @@
             });
         });
 
+        //customize radio
+        /*$('input[type="radio"]').iCheck({
+            checkboxClass: 'iradio_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });*/
+
         $.getJSON('./data/codeToState.json', function(json){
             var stateList = json;
             $.each(stateList, function(index, item){
