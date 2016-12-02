@@ -80,14 +80,14 @@
                 <option value="T00">Other Undefined Modes</option>
             </select>
         </span>
-                <!--<span class="shade-by">
-                    <label class="label">Table Show</label>
-                    <select class="selectbox selectbox-mid" id="shade">
-                        <option value="IE" selected>Import and Export</option>
-                        <option value="Food">Food Types</option>
-                        &lt;!&ndash;<option value="Trans">Transportation Modes</option>&ndash;&gt;
-                    </select>
-                </span>-->
+       <!-- <span class="shade-by">
+            <label class="label">Table Show</label>
+            <select class="selectbox selectbox-mid" id="shade">
+                <option value="IE" selected>Import and Export</option>
+                <option value="Food">Food Types</option>
+                &lt;!&ndash;<option value="Trans">Transportation Modes</option>&ndash;&gt;
+            </select>
+        </span>-->
             </div>
         </form>
     </div>
@@ -103,27 +103,27 @@
         <span class="key keyUnits">In Billions of Pounds</span>
         <img src="img/x.png" style="position: absolute; width: 16px; height: 16px; top: 12px;right:12px; cursor: pointer" alt="Close" id="closeState">
         <table><tbody id="sameState">
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number smallW"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            </tbody>
+        <tr>
+            <td class="state">GA&rarr;GA</td>
+            <td class="number smallW"><span class="importDot">&bull;</span> 234</td>
+            <td class="number"><span class="exportDot">&bull;</span> 544</td>
+        </tr>
+        </tbody>
         </table>
         <div class="table"><div>
-        <table>
-            <thead>
-            <th colspan="2">Import</th>
-            </thead>
-            <tbody id="importState">
-            <tr><td colspan="3"><div class="section"></div></td></tr>
-            <tr>
-                <td class="state">GA&rarr;GA</td>
-                <td class="number"><span class="importDot">&bull;</span> 234</td>
-                <td class="number"><span class="exportDot">&bull;</span> 544</td>
-            </tr>
-            </tbody>
-        </table>
+            <table>
+                <thead>
+                <th colspan="2">Import</th>
+                </thead>
+                <tbody id="importState">
+                <tr><td colspan="3"><div class="section"></div></td></tr>
+                <tr>
+                    <td class="state">GA&rarr;GA</td>
+                    <td class="number"><span class="importDot">&bull;</span> 234</td>
+                    <td class="number"><span class="exportDot">&bull;</span> 544</td>
+                </tr>
+                </tbody>
+            </table>
         </div></div>
         <div class="table" style="margin-bottom:2px;"><div>
         <table>
@@ -138,6 +138,19 @@
             </tr>
             </tbody>
         </table>
+        <div class="table"><div>
+            <table>
+                <thead>
+                <th colspan="2">Export</th>
+                </thead>
+                <tbody id="exportState">
+                <tr>
+                    <td class="state">GA&rarr;GA</td>
+                    <td class="number"><span class="importDot">&bull;</span> 234</td>
+                    <td class="number"><span class="exportDot">&bull;</span> 544</td>
+                </tr>
+                </tbody>
+            </table>
         </div></div>
         <div class="key switch" data-value="IE" id="shade">(Show Food Categories)</div>
     </div>
@@ -224,91 +237,91 @@
             </g>
 
             <g transform="translate(120,0)">
-            <g transform="translate(0,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
-                <text x="18" y="11" class="keyText">Import</text>
-            </g>
+                <g transform="translate(0,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox import"></rect>
+                    <text x="18" y="11" class="keyText">Import</text>
+                </g>
 
-            <g transform="translate(0,20)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox export"></rect>
-                <text x="18" y="11" class="keyText">Export</text>
-            </g>
-            <g transform="translate(100,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f01"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Animals and Fish</tspan>
-                </text>
-            </g>
-            <g transform="translate(100,20)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f02"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Cereal Grains</tspan>
-                </text>
-            </g>
-            <g transform="translate(200,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f03"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Agricultural</tspan>
-                    <tspan x="18" dy="1.2em">Products</tspan>
-                </text>
-            </g>
-            <g transform="translate(300,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f04"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Animal Feed,</tspan>
-                    <tspan x="18" dy="1.2em">Eggs, Honey, and</tspan>
-                    <tspan x="18" dy="1.2em">Other products of</tspan>
-                    <tspan x="18" dy="1.2em">Animal Origin</tspan>
-                </text>
-            </g>
-            <g transform="translate(400,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f05"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Meat, Poultry,</tspan>
-                    <tspan x="18" dy="1.2em">Fish, Seafood,</tspan>
-                    <tspan x="18" dy="1.2em">and their</tspan>
-                    <tspan x="18" dy="1.2em">preparations</tspan>
-                </text>
-            </g>
-            <g transform="translate(500,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f06"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Milled Grain</tspan>
-                    <tspan x="18" dy="1.2em">Products and </tspan>
-                    <tspan x="18" dy="1.2em">Preparations, and</tspan>
-                    <tspan x="18" dy="1.2em">Bakery Products</tspan>
-                </text>
-            </g>
-            <g transform="translate(600,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f07"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Other Prepared</tspan>
-                    <tspan x="18" dy="1.2em">Foodstuffs, and</tspan>
-                    <tspan x="18" dy="1.2em">Fats and Oil</tspan>
-                </text>
-            </g>
-            <g transform="translate(700,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f08"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Alcoholic</tspan>
-                    <tspan x="18" dy="1.2em">Beverages and</tspan>
-                    <tspan x="18" dy="1.2em">Denatured</tspan>
-                    <tspan x="18" dy="1.2em">Alcohol</tspan>
-                </text>
-            </g>
-            <g transform="translate(800,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f09"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Tobacco</tspan>
-                    <tspan x="18" dy="1.2em">Products</tspan>
-                </text>
-            </g>
-            <g transform="translate(900,0)">
-                <rect x="0" y="2" width="11" height="11" class="keyBox f00"></rect>
-                <text x="18" y="0" class="keyText">
-                    <tspan x="18" dy="1.2em">Undefined</tspan>
-                </text>
-            </g>
+                <g transform="translate(0,20)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox export"></rect>
+                    <text x="18" y="11" class="keyText">Export</text>
+                </g>
+                <g transform="translate(100,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f01"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Animals and Fish</tspan>
+                    </text>
+                </g>
+                <g transform="translate(100,20)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f02"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Cereal Grains</tspan>
+                    </text>
+                </g>
+                <g transform="translate(200,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f03"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Agricultural</tspan>
+                        <tspan x="18" dy="1.2em">Products</tspan>
+                    </text>
+                </g>
+                <g transform="translate(300,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f04"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Animal Feed,</tspan>
+                        <tspan x="18" dy="1.2em">Eggs, Honey, and</tspan>
+                        <tspan x="18" dy="1.2em">Other products of</tspan>
+                        <tspan x="18" dy="1.2em">Animal Origin</tspan>
+                    </text>
+                </g>
+                <g transform="translate(400,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f05"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Meat, Poultry,</tspan>
+                        <tspan x="18" dy="1.2em">Fish, Seafood,</tspan>
+                        <tspan x="18" dy="1.2em">and their</tspan>
+                        <tspan x="18" dy="1.2em">preparations</tspan>
+                    </text>
+                </g>
+                <g transform="translate(500,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f06"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Milled Grain</tspan>
+                        <tspan x="18" dy="1.2em">Products and </tspan>
+                        <tspan x="18" dy="1.2em">Preparations, and</tspan>
+                        <tspan x="18" dy="1.2em">Bakery Products</tspan>
+                    </text>
+                </g>
+                <g transform="translate(600,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f07"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Other Prepared</tspan>
+                        <tspan x="18" dy="1.2em">Foodstuffs, and</tspan>
+                        <tspan x="18" dy="1.2em">Fats and Oil</tspan>
+                    </text>
+                </g>
+                <g transform="translate(700,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f08"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Alcoholic</tspan>
+                        <tspan x="18" dy="1.2em">Beverages and</tspan>
+                        <tspan x="18" dy="1.2em">Denatured</tspan>
+                        <tspan x="18" dy="1.2em">Alcohol</tspan>
+                    </text>
+                </g>
+                <g transform="translate(800,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f09"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Tobacco</tspan>
+                        <tspan x="18" dy="1.2em">Products</tspan>
+                    </text>
+                </g>
+                <g transform="translate(900,0)">
+                    <rect x="0" y="2" width="11" height="11" class="keyBox f00"></rect>
+                    <text x="18" y="0" class="keyText">
+                        <tspan x="18" dy="1.2em">Undefined</tspan>
+                    </text>
+                </g>
             </g>
         </svg>
     </div>
@@ -318,6 +331,11 @@
         <!-- https://github.gatech.edu/lklingman3/info-vis/issues/1 -->
         <h2><span class="viewSelectText">Shipment Weight</span> by State, <span class="year">2012</span></h2>
         <div class="notes keyUnits">In Billions of Pounds</div>
+        <div id="mapRadios" class="map-radios notes">
+            <input type="radio" name="mapRadio" class="mapRadio" value="i"> <label>Import</label>
+            <input type="radio" name="mapRadio" class="mapRadio" value="e"> <label>Export</label>
+            <input type="radio" name="mapRadio" class="mapRadio" value="ie" checked> <label>Both</label>
+        </div>
         <div id="mapKey" class="key" style="padding: 10px;">
             <svg width="233" height="25">
                 <text class="keyText" x="0" y="23">0</text>
@@ -539,11 +557,6 @@
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">FL</text>
                 </g>
             </svg>
-            <div id="mapRadios" class="notes">
-            <input type="radio" name="mapRadio" class="mapRadio" value="i"> Import
-            <input type="radio" name="mapRadio" class="mapRadio" value="e"> Export
-            <input type="radio" name="mapRadio" class="mapRadio" value="ie" checked> Both
-            </div>
         </div>
     </div>
     <div id="foodClassBar">
