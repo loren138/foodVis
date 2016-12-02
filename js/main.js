@@ -240,15 +240,23 @@
             }
         });
         var dot = max / 100;
+        var unit;
+        if (dotsIndex == 'w') {
+            unit = 'pounds';
+        } else if (dotsIndex == 'v') {
+            unit = 'dollars';
+        } else {
+            unit = 'ton miles';
+        }
         if (dot > 2) {
             dot = Math.ceil(dot);
-            console.log('1 dot is: ', dot);
+            $("#dotUnit").text(dot.toFixed(0)+' bn '+unit+'/dot');
         } else {
             dot = Math.ceil(dot * 100) / 100;
             if (dot < 0.01) {
                 dot = 0.01;
             }
-            console.log('1 dot is: ', dot);
+            $("#dotUnit").text(dot.toFixed(2)+' bn '+ unit +'/dot');
         }
 
 
