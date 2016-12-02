@@ -232,6 +232,26 @@
     function drawDots() {
         stateSumCalc();
 
+        var max = 0;
+        Object.keys(states).forEach(function(key) {
+            var j = (stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4];
+            if (j > max) {
+                max = j;
+            }
+        });
+        var dot = max / 100;
+        if (dot > 2) {
+            dot = Math.ceil(dot);
+            console.log('1 dot is: ', dot);
+        } else {
+            dot = Math.ceil(dot * 100) / 100;
+            if (dot < 0.01) {
+                dot = 0.01;
+            }
+            console.log('1 dot is: ', dot);
+        }
+
+
         Object.keys(states).forEach(function(key) {
             var size = Math.round(Math.sqrt(
                         (stateSum[key]['i'] + stateSum[key]['e'])/stateSumNorm[dotsIndex][1]
@@ -270,11 +290,11 @@
                 );
                 box = $('#'+key+'DotsBox');
             }
-            var importDots = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][0]);
+            var importDots = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][4]/dot);
             if (importDots < 0) {
                 importDots = 0;
             }
-            var exportDots = Math.round(stateSum[key]['e']/stateSumNorm[dotsIndex][0]);
+            var exportDots = Math.round(stateSum[key]['e']/stateSumNorm[dotsIndex][4]/dot);
             //if (importDots + exportDots > 50) {
             //    exportDots = 60 - importDots;
             //}
@@ -289,17 +309,72 @@
             for (var i = 0; i < importDots; i++) {
                 addDot(box, i, 0, 'import');
             }
-            for (var i = 0; i < exportDots; i++) {
+            for (i = 0; i < exportDots; i++) {
                 addDot(box, i, importDots, 'export');
             }
-            var x = Math.round(stateSum[key]['i']/stateSumNorm[dotsIndex][3]);
+        });
+    }
+
+    function calculateBuckets(mapValues, split) {
+        var bottom = 0, top = 0;
+        for (var i = 0; i < mapValues.length; i++) {
+            if (mapValues[i] == 0) {
+                continue;
+            }
+            var x = Math.floor(mapValues[i] / split) + 1;
+            if (x <= 1) {
+                bottom++;
+            } else if (x >= 6) {
+                top++;
+            }
+        }
+        if (bottom > top) {
+            return true;
+        }
+    }
+
+    function colorMap(stateSum) {
+        var mapValues = [];
+        Object.keys(states).forEach(function(key) {
+            mapValues.push((stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4]);
+        });
+        mapValues.sort();
+        var j = 1;
+        var max = mapValues[mapValues.length - j];
+        var split = max / 6;
+        while (calculateBuckets(mapValues, split)) {
+            j++;
+            max = mapValues[mapValues.length - j];
+            if (max == 0) {
+                break;
+            }
+            split = max / 6;
+        }
+        if (split > 2) {
+            split = Math.round(split);
+            $('#mapKey1').text((split * 2).toFixed(0));
+            $('#mapKey2').text((split * 4).toFixed(0));
+            $('#mapKey3').text('> ' + (split * 6).toFixed(0));
+        } else {
+            split = Math.round(split * 100) / 100;
+            if (split < 0.01) {
+                split = 0.01;
+            }
+            $('#mapKey1').text((split * 2).toFixed(2));
+            $('#mapKey2').text((split * 4).toFixed(2));
+            $('#mapKey3').text('> ' + (split * 6).toFixed(2));
+        }
+        Object.keys(states).forEach(function(key) {
+            var x = Math.floor(
+                    ((stateSum[key]['i'] + stateSum[key]['e']) / stateSumNorm[dotsIndex][4]) / split
+                ) + 1;
             if (x < 1) {
                 x = 1;
             }
             if (x > 6) {
                 x = 6;
             }
-            $('#stateMap'+key+' rect').attr('class', 'mapColor'+x);
+            $('#stateMap' + key + ' rect').attr('class', 'mapColor' + x);
         });
     }
     var stateAbbr = {};
@@ -371,10 +446,15 @@
         $('#sortSelect').change(sortStates);
         $('#closeState').click(function() { unselectState(); drawBarGraph(); });
         $('#stateSelect').change(stateChange);
+        $('#mapSVG').find('rect, text').click(function() {
+            var state = $(this).parents('g').find('text').text();
+            selectState(state);
+            drawBarGraph();
+        });
         $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
 
 
-        //add product tour -- ellie
+        //ellie
         startIntro();
     }
     function shadeChange() {
@@ -416,6 +496,8 @@
         drawBarGraph();
         if (selectedState) {
             selectState(selectedState);
+        } else {
+            colorMap(stateSum);
         }
     }
     var foodChart;
@@ -631,7 +713,7 @@
                     headerFormat: '<b>{point.key}</b><br>',
                     pointFormat: '{series.name}: {point.y:,.1f}<br>',
                     shared: true,
-                    useHTML: true
+                    useHTML: false
                 },
 
                 plotOptions: {
@@ -701,9 +783,22 @@
                             cat = ' ('+this.series.options.stack+')';
                         }
                         var tip = '<b>' + this.x + cat +'</b><br/>' +
-                            this.series.name + ': ' + this.y.toLocaleString('en-US', {'maximumFractionDigits': 0});
+                            this.series.name + ': ';
+                        if (this.y >= 10) {
+                            tip += this.y.toLocaleString('en-US', {'maximumFractionDigits': 0});
+                        } else if (this.y > 1) {
+                            tip += this.y.toLocaleString('en-US', {'maximumFractionDigits': 1});
+                        } else {
+                            tip += this.y.toLocaleString('en-US', {'maximumFractionDigits': 2});
+                        }
                         if (this.point.stackTotal) {
-                            tip += '<br/>Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 0});
+                            if (this.point.stackTotal >= 10) {
+                                tip += '<br/>Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 0});
+                            } else if (this.point.stackTotal > 1) {
+                                tip += '<br/>Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 1});
+                            } else {
+                                tip += '<br/>Total: ' + this.point.stackTotal.toLocaleString('en-US', {'maximumFractionDigits': 2});
+                            }
                         }
                         return '<div class="tooltip-text">' + tip + '</div>';
                     }
@@ -882,6 +977,7 @@
         $('.withState').hide();
         $('#mapSVG').children('g').removeClass('dim');
         $('.stateCircleSelf').remove();
+        colorMap(stateSum);
     }
     function abbrNum(number, decPlaces) {
         // This function credit JeffB: http://stackoverflow.com/a/2686098/3854385
@@ -948,7 +1044,8 @@
         }
         where += ' (s="'+state+'" OR t="'+state+'")';
         var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+where+' GROUP BY s, t');
-        var arcs2 = [];    $('#mapSVG').children('g').addClass('dim');
+        var arcs2 = [];
+        $('#mapSVG').children('g').addClass('dim');
         $('#stateMap'+state).addClass('selected').removeClass('dim');
 
         for (var i = 0; i < arcs.length; i++) {
@@ -1034,6 +1131,7 @@
                 sStateSum[data2[i].t]['e'] = data2[i]['w']
             }
         }
+        colorMap(sStateSum);
         var stateRankIa = [];
         var stateRankEa = [];
         Object.keys(states).forEach(function (key) {
@@ -1245,6 +1343,7 @@
                 .attr('cy', Math.floor((i+extra)/4) * 5).attr('r', 2).addClass(className)
         );
     }
+
 
     //add progress indicator -- ellie
     NProgress.configure({ showSpinner: false });
