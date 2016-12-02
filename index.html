@@ -7,6 +7,15 @@
     <link rel="stylesheet" type="text/css" href="./css/styles.css"/>
     <link rel="stylesheet" type="text/css" href="./css/jquery-ui.css"/>
     <link rel="stylesheet" type="text/css" href="./css/states.css"/>
+    <script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js" defer></script>
+    <script type="text/javascript" src="./js/vendor/selectize/selectize.js" defer></script>
+    <script type="text/javascript" src="./js/vendor/js.cookie.js" defer></script>
+    <script type="text/javascript" src="./js/vendor/nprogress/nprogress.js" defer></script>
+    <script type="text/javascript" src="./js/vendor/alasql.min.js" defer></script>
+    <script type="text/javascript" src="./js/vendor/jquery-ui.min.js" defer></script>
+    <script src="https://code.highcharts.com/highcharts.js" defer></script>
+    <script src="https://code.highcharts.com/highcharts-more.js" defer></script>
+    <script type="text/javascript" src="./js/main.js" defer></script>
 </head>
 <body>
 <div class="tour-overlay"></div>
@@ -157,7 +166,7 @@
             <text x="1200" y="126" class="slider">2007</text>
             <text x="1148" y="126" class="slider">2002</text>
             <text x="1096" y="126" class="slider">1997</text>
-            <text x="1270" y="146" text-anchor="end" class="graph-unit slider">In Billions of Pounds</text>
+            <text x="1270" y="146" text-anchor="end" class="graph-unit slider keyUnits">In Billions of Pounds</text>
             <g id="yearChart" transform="translate(1103,5)">
                 <text x="6" y="10" id="t1997" transform="translate(0,-3)">1.3m</text>
                 <text x="56" y="10" id="t2002" transform="translate(0,-3)">1.3m</text>
@@ -187,13 +196,13 @@
             <circle cx="128" cy="10.5" r="2.5" class="import"></circle>
             <circle cx="134.5" cy="4.5" r="2.5" class="import"></circle>
             <circle cx="134.5" cy="10.5" r="2.5" class="export"></circle>
-            <text x="140" y="11" class="keyText viewSelectText">10 bn pounds/dot</text>
+            <text x="140" y="11" class="keyText" id="dotUnit">10 bn pounds/dot</text>
 
-            <rect x="234" y="2" width="11" height="11" class="keyBox import"></rect>
-            <text x="252" y="11" class="keyText">Import</text>
+            <rect x="238" y="2" width="11" height="11" class="keyBox import"></rect>
+            <text x="256" y="11" class="keyText">Import</text>
 
-            <rect x="296" y="2" width="11" height="11" class="keyBox export"></rect>
-            <text x="314" y="11" class="keyText">Export</text>
+            <rect x="298" y="2" width="11" height="11" class="keyBox export"></rect>
+            <text x="316" y="11" class="keyText">Export</text>
         </svg>
     </div>
     <div class="key" id="keyFood" style="display:none;">
@@ -518,6 +527,11 @@
                     <text class="stateID" style="pointer-events: none;" x="14.5" y="14.5">FL</text>
                 </g>
             </svg>
+            <div id="mapRadios" class="notes">
+            <input type="radio" name="mapRadio" class="mapRadio" value="i"> Import
+            <input type="radio" name="mapRadio" class="mapRadio" value="e"> Export
+            <input type="radio" name="mapRadio" class="mapRadio" value="ie" checked> Both
+            </div>
         </div>
     </div>
     <div id="foodClassBar">
@@ -569,14 +583,5 @@
         <div id="transportBar"></div>
     </div>
 </div>
-<script type="text/javascript" src="./js/vendor/jquery-3.1.1.min.js"></script>
-<script type="text/javascript" src="./js/vendor/selectize/selectize.js"></script>
-<script type="text/javascript" src="./js/vendor/js.cookie.js"></script>
-<script type="text/javascript" src="./js/vendor/nprogress/nprogress.js"></script>
-<script type="text/javascript" src="./js/vendor/alasql.min.js"></script>
-<script type="text/javascript" src="./js/vendor/jquery-ui.min.js"></script>
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/highcharts-more.js"></script>
-<script type="text/javascript" src="./js/main.js"></script>
 </body>
 </html>

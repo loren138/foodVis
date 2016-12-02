@@ -240,15 +240,23 @@
             }
         });
         var dot = max / 100;
+        var unit;
+        if (dotsIndex == 'w') {
+            unit = 'pounds';
+        } else if (dotsIndex == 'v') {
+            unit = 'dollars';
+        } else {
+            unit = 'ton miles';
+        }
         if (dot > 2) {
             dot = Math.ceil(dot);
-            console.log('1 dot is: ', dot);
+            $("#dotUnit").text(dot.toFixed(0)+' bn '+unit+'/dot');
         } else {
             dot = Math.ceil(dot * 100) / 100;
             if (dot < 0.01) {
                 dot = 0.01;
             }
-            console.log('1 dot is: ', dot);
+            $("#dotUnit").text(dot.toFixed(2)+' bn '+ unit +'/dot');
         }
 
 
@@ -334,14 +342,24 @@
     }
 
     function colorMap(stateSum) {
+        var imEx = $('input[name=mapRadio]:checked').val();
+        var val;
         var mapValues = [];
         Object.keys(states).forEach(function(key) {
-            mapValues.push((stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4]);
+            if (imEx == 'i') {
+                val = stateSum[key]['i'];
+            } else if (imEx == 'e') {
+                val = stateSum[key]['e'];
+            } else {
+                val = stateSum[key]['i'] + stateSum[key]['e'];
+            }
+            mapValues.push(val / stateSumNorm[dotsIndex][4]);
         });
-        mapValues.sort();
+        mapValues.sort(function(a, b){return a-b});
         var j = 1;
         var max = mapValues[mapValues.length - j];
         var split = max / 6;
+        console.log(max, split, mapValues);
         while (calculateBuckets(mapValues, split)) {
             j++;
             max = mapValues[mapValues.length - j];
@@ -364,10 +382,16 @@
             $('#mapKey2').text((split * 4).toFixed(2));
             $('#mapKey3').text('> ' + (split * 6).toFixed(2));
         }
+        console.log(split);
         Object.keys(states).forEach(function(key) {
-            var x = Math.floor(
-                    ((stateSum[key]['i'] + stateSum[key]['e']) / stateSumNorm[dotsIndex][4]) / split
-                ) + 1;
+            if (imEx == 'i') {
+                val = stateSum[key]['i'];
+            } else if (imEx == 'e') {
+                val = stateSum[key]['e'];
+            } else {
+                val = stateSum[key]['i'] + stateSum[key]['e'];
+            }
+            var x = Math.floor((val / stateSumNorm[dotsIndex][4]) / split) + 1;
             if (x < 1) {
                 x = 1;
             }
@@ -452,6 +476,13 @@
             drawBarGraph();
         });
         $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
+        $('input[name=mapRadio]').change(function() {
+            if (selectedState) {
+                selectState(selectedState);
+            } else {
+                colorMap(stateSum);
+            }
+        });
 
 
         //ellie
