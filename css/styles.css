@@ -408,7 +408,9 @@ g.gray-arc .export-line.color {
     margin: 0 auto;
     /*transform: scale(0.98);*/
 }
-
+#mapSVG rect, #mapSVG text {
+    cursor: pointer;
+}
 #map, #foodClassBar, #transportationBar {
     position: absolute;
     top: 0;
