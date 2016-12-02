@@ -1,11 +1,27 @@
 @import "reset.css";
 @import "map.css";
+@import "../js/vendor/selectize/selectize.css";
+@import "../js/vendor/hopscotch/hopscotch.css";
+@import "../js/vendor/introjs/introjs.css";
+@import "../js/vendor/nprogress/nprogress.css";
 
 /*============Global Style==============*/
+html{
+    height: 100%;
+}
 body{
     font-family: 'Roboto', sans-serif;
     color: #5f6872;
     font-size: 12px;
+    overflow-x: hidden;
+    /* width: 1280px; */
+    height: 100%;
+    position: relative;
+}
+.container{
+    width: 1280px;
+    margin: 0 auto;
+    position: relative;
 }
 
 .header{
@@ -23,7 +39,7 @@ body{
     font-weight: bold;
     font-stretch: condensed;
     color: #152740;
-    padding-left: 20px;
+    padding-left: 12px;
     margin-right: 35px;
     float: left;
 }
@@ -31,7 +47,7 @@ body{
     position: absolute;
     right: 0;
     top: 0;
-    padding: 12px 20px 12px 0;
+    padding: 12px 12px 12px 12px;
 }
 .header .filter *{
     vertical-align: middle;
@@ -65,7 +81,7 @@ body{
     font-stretch: normal;
     line-height: 1.2;
     color: #A0A5AF;
-    margin-top: 10px;
+    padding-top: 10px;
 }
 .key.left {
     text-align: left;
@@ -81,9 +97,9 @@ svg rect.mean {
 }
 #bottomRow {
     width: 1280px;
-    margin: 20px auto 0;
+    margin: 40px auto 0;
     min-height: 325px;
-    transform: scale(0.98);
+    /*transform: scale(0.98);*/
 }
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -104,6 +120,7 @@ svg rect.mean {
     opacity: 0.46;
     font-family: Roboto, sans-serif;
 }
+#arcGraph text.graph-unit{/* text-align: right; */}
 #slider {
     position: absolute;
     top: 102px;
@@ -141,8 +158,8 @@ svg rect.mean {
 #selectedState {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 257px;
+    left: 10px;
+    max-width: 257px;
     background-color: #ffffff;
     box-shadow: 0 1px 3px 0 rgba(31, 56, 76, 0.2);
     text-align: left;
@@ -151,6 +168,7 @@ svg rect.mean {
     font-size: 12px;
     color: #152740;
     padding: 15px;
+    z-index: 9;
 }
 #selectedState.IE {
     width: 180px;
@@ -175,6 +193,12 @@ svg rect.mean {
 }
 #selectedState td {
     padding: 4px 0;
+}
+#selectedState th{
+    font-weight: normal;
+    color: #A0A5AF;
+    padding-bottom: 2px;
+    display: inline-block;
 }
 #selectedState td.state {
     width: 54px;
@@ -216,6 +240,7 @@ svg rect.mean {
     padding: 10px;
     background-color: #152740;
     box-shadow: 0 1px 3px 0 rgba(31, 56, 76, 0.2);
+    z-index: 10;
 }
 .hoverState .greyText {
     font-family: Roboto, sans-serif;
@@ -284,6 +309,22 @@ g.gray-arc .import-line.color {
 g.gray-arc .export-line.color {
     fill: none;
     stroke: #9ecbea;
+}
+.arc-graph-container{
+    /* width: 1280px; */
+    /* height:560px; */
+    transform: translate(1px,0);
+}
+.arc-graph-container .state-box{
+    width: 100%;
+    height: 58px;
+    position: absolute;
+    top:368px;
+    visibility: hidden;
+    /*opacity: 0;*/
+    /* z-index: -1; */
+    /*display: none;*/
+    background: transparent;
 }
 #arcGraph {
     width: 1280px;
@@ -365,13 +406,13 @@ g.gray-arc .export-line.color {
     position: relative;
     width: 1280px;
     margin: 0 auto;
-    transform: scale(0.98);
+    /*transform: scale(0.98);*/
 }
 
 #map, #foodClassBar, #transportationBar {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 15px;
     width: 360px;
     margin-bottom: 20px;
 }
@@ -385,7 +426,7 @@ g.gray-arc .export-line.color {
 }
 #transportationBar {
     left: auto;
-    right: 0;
+    right: 15px;
 }
 
 #map h2, #foodClassBar h2, #transportationBar h2 {
@@ -430,3 +471,62 @@ div.notes {
 #map rect.mapColor4 { fill: #566f86; }
 #map rect.mapColor5 { fill: #304862; }
 #map rect.mapColor6 { fill: #152740; }
+
+
+/*====================Tour================*/
+.tour-overlay{
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 998;
+    background-color: rgba(12,24,42,0.8);
+    /* min-height: 100%; */
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+.tour-content{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 999;
+    display: none;
+    width: 100%;
+}
+.tour-content .introduction{
+    position: absolute;
+    left: 30px;
+    top: 100px;
+    color: white;
+    font-size: 14px;
+    line-height: 18px;
+    width: 280px;
+}
+.tour-content .tour-title{
+    font-size: 28px;
+    font-family: "Roboto Condensed";
+    font-weight: bold;
+    margin-bottom: 20px;
+    line-height: 1.2em;
+}
+.tour-content .tour-intro{
+    margin-bottom: 30px;
+}
+.tour-content .btn-done{
+    display: block;
+    color: #ffffff;
+    text-decoration: none;
+    width: 180px;
+    height: 42px;
+    font-size: 18px;
+    line-height: 42px;
+    text-align: center;
+    border: 1px solid #fff;
+    background-color: transparent;
+}
+.tour-content .btn-done:hover{
+    background-color: #fff;
+    color: #152740;
+    transition: all 0.3s;
+}
