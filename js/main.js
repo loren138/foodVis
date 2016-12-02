@@ -342,9 +342,18 @@
     }
 
     function colorMap(stateSum) {
+        var imEx = $('input[name=mapRadio]:checked').val();
+        var val;
         var mapValues = [];
         Object.keys(states).forEach(function(key) {
-            mapValues.push((stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4]);
+            if (imEx == 'i') {
+                val = stateSum[key]['i'];
+            } else if (imEx == 'e') {
+                val = stateSum[key]['e'];
+            } else {
+                val = stateSum[key]['i'] + stateSum[key]['e'];
+            }
+            mapValues.push(val / stateSumNorm[dotsIndex][4]);
         });
         mapValues.sort(function(a, b){return a-b});
         var j = 1;
@@ -375,9 +384,14 @@
         }
         console.log(split);
         Object.keys(states).forEach(function(key) {
-            var x = Math.floor(
-                    ((stateSum[key]['i'] + stateSum[key]['e']) / stateSumNorm[dotsIndex][4]) / split
-                ) + 1;
+            if (imEx == 'i') {
+                val = stateSum[key]['i'];
+            } else if (imEx == 'e') {
+                val = stateSum[key]['e'];
+            } else {
+                val = stateSum[key]['i'] + stateSum[key]['e'];
+            }
+            var x = Math.floor((val / stateSumNorm[dotsIndex][4]) / split) + 1;
             if (x < 1) {
                 x = 1;
             }
@@ -462,6 +476,13 @@
             drawBarGraph();
         });
         $('.stateCircle, .stateText').hover(stateHoverIn, stateHoverOut).click(stateClick);
+        $('input[name=mapRadio]').change(function() {
+            if (selectedState) {
+                selectState(selectedState);
+            } else {
+                colorMap(stateSum);
+            }
+        });
 
 
         //ellie
