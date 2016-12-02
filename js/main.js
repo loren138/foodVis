@@ -250,13 +250,13 @@
         }
         if (dot > 2) {
             dot = Math.ceil(dot);
-            $("#dotUnit").text(dot.toFixed(0)+' bn '+unit+'/dot');
+            $(".dotUnit").text(dot.toFixed(0)+' bn '+unit+'/dot');
         } else {
             dot = Math.ceil(dot * 100) / 100;
             if (dot < 0.01) {
                 dot = 0.01;
             }
-            $("#dotUnit").text(dot.toFixed(2)+' bn '+ unit +'/dot');
+            $(".dotUnit").text(dot.toFixed(2)+' bn '+ unit +'/dot');
         }
 
 
@@ -359,7 +359,6 @@
         var j = 1;
         var max = mapValues[mapValues.length - j];
         var split = max / 6;
-        console.log(max, split, mapValues);
         while (calculateBuckets(mapValues, split)) {
             j++;
             max = mapValues[mapValues.length - j];
@@ -382,7 +381,6 @@
             $('#mapKey2').text((split * 4).toFixed(2));
             $('#mapKey3').text('> ' + (split * 6).toFixed(2));
         }
-        console.log(split);
         Object.keys(states).forEach(function(key) {
             if (imEx == 'i') {
                 val = stateSum[key]['i'];
@@ -466,7 +464,7 @@
 
         $('#filterFood, #filterTrans').change(redraw);
         $('#viewSelect').change(viewChange);
-        $('#shade').change(shadeChange);
+        $('#shade').click(shadeChange);
         $('#sortSelect').change(sortStates);
         $('#closeState').click(function() { unselectState(); drawBarGraph(); });
         $('#stateSelect').change(stateChange);
@@ -489,7 +487,14 @@
         startIntro();
     }
     function shadeChange() {
-        var shade = $(this).val();
+        var shade = $(this).data('value');
+        if (shade == 'IE') {
+            shade = 'Food';
+            $(this).data('value', 'Food').text('(Show Import and Export)');
+        } else {
+            shade = 'IE';
+            $(this).data('value', 'IE').text('(Show Food Categories)');
+        }
         $('#keyFood, #keyIE').hide();
         $('#key'+shade).show();
         if (selectedState) {
@@ -1146,7 +1151,7 @@
         var data1 = alasql('SELECT s, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereI+' GROUP BY s');
         var data2 = alasql('SELECT t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+whereE+' GROUP BY t');
         var fo1, fo2;
-        var shade = $('#shade').val();
+        var shade = $('#shade').data('value');
         var sStateSum = {};
         Object.keys(statesAlpha).forEach(function(key) {
             sStateSum[key] = {'e': 0, 'i': 0}
