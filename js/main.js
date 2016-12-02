@@ -346,10 +346,11 @@
         Object.keys(states).forEach(function(key) {
             mapValues.push((stateSum[key]['i']+stateSum[key]['e']) / stateSumNorm[dotsIndex][4]);
         });
-        mapValues.sort();
+        mapValues.sort(function(a, b){return a-b});
         var j = 1;
         var max = mapValues[mapValues.length - j];
         var split = max / 6;
+        console.log(max, split, mapValues);
         while (calculateBuckets(mapValues, split)) {
             j++;
             max = mapValues[mapValues.length - j];
@@ -372,6 +373,7 @@
             $('#mapKey2').text((split * 4).toFixed(2));
             $('#mapKey3').text('> ' + (split * 6).toFixed(2));
         }
+        console.log(split);
         Object.keys(states).forEach(function(key) {
             var x = Math.floor(
                     ((stateSum[key]['i'] + stateSum[key]['e']) / stateSumNorm[dotsIndex][4]) / split
