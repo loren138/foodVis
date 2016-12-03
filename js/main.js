@@ -1402,9 +1402,9 @@
     //add product tour -- ellie
     function startIntro(){
 
-        if(!(Cookies.get('isTourDone') === '1')){
+        //if(!(Cookies.get('isTourDone') === '1')){
             $('.tour-overlay, .tour-content').show();
-        }
+        //}
 
         //$('.tour-overlay, .tour-content').show();
 
