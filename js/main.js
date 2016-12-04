@@ -345,6 +345,11 @@
         var imEx = $('input[name=mapRadio]:checked').val();
         var val;
         var mapValues = [];
+
+        if (selectedState) {
+            $('#mapSVG').children('g').addClass('dim');
+            $('#stateMap' + selectedState).addClass('selected').removeClass('dim');
+        }
         Object.keys(states).forEach(function(key) {
             if (imEx == 'i') {
                 val = stateSum[key]['i'];
@@ -397,6 +402,9 @@
                 x = 6;
             }
             $('#stateMap' + key + ' rect').attr('class', 'mapColor' + x);
+            if (selectedState && val != 0) {
+                $('#stateMap' + key).removeClass('dim');
+            }
         });
     }
     var stateAbbr = {};
@@ -1088,8 +1096,6 @@
         where += ' (s="'+state+'" OR t="'+state+'")';
         var arcs = alasql('SELECT s, t, SUM('+dotsIndex+') AS w FROM stateFlow'+graphYear+' '+where+' GROUP BY s, t');
         var arcs2 = [];
-        $('#mapSVG').children('g').addClass('dim');
-        $('#stateMap'+state).addClass('selected').removeClass('dim');
 
         for (var i = 0; i < arcs.length; i++) {
             if (arcs[i]['s'] == arcs[i]['t']) {
@@ -1108,10 +1114,8 @@
                 );
             } else if (arcs[i]['s'] == state) {
                 arcs2.push([arcs[i]['w'], arcs[i]['t'], 'export-line']);
-                $('#stateMap'+arcs[i].t).removeClass('dim');
             } else {
                 arcs2.push([arcs[i]['w'], arcs[i]['s'], 'import-line']);
-                $('#stateMap'+arcs[i].s).removeClass('dim');
             }
         }
         arcs2.sort(function(a,b) { return b[0] - a[0]; });
